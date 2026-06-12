@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF0057;
+  --color-navy: #0F172A;
+  --color-navy-dark: #060d18;
+  --color-off-white: #F8FAFC;
+  --color-surface: #F1F5F9;
+  --color-dark: #0F172A;
+  --font-sans: var(--font-montserrat), 'Montserrat', sans-serif;
+  --font-body: var(--font-inter), 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 400;
+  background-color: #ffffff;
+  color: #0F172A;
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+p, li {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+button, input, textarea, label, a, span {
+  font-family: inherit;
+}
+
+/* ── Focus-visible ── */
+:focus-visible {
+  outline: 2px solid #FF0057;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+/* ── Reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #F1F5F9; }
+::-webkit-scrollbar-thumb { background: #0F172A; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #1e293b; }
+
+/* ── Selection ── */
+::selection { background: #FF0057; color: #fff; }
+
+/* ── Text accent (red) ── */
+.text-gradient {
+  color: #FF0057;
+}
+
+/* ── Text gradient dark ── */
+.text-gradient-navy {
+  background: linear-gradient(135deg, #0F172A 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Hero (light enterprise) ── */
+.hero-bg {
+  background: #ffffff;
+}
+
+/* ── Grid overlay (very subtle, light) ── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* ── Dark gradient (footer sections) ── */
+.navy-gradient {
+  background: linear-gradient(135deg, #060d18 0%, #0F172A 50%, #060d18 100%);
+}
+
+/* ── Animations ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/* ── Skip-to-content ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  background: #0F172A;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 8px 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 0; }
+
+/* ── Hide scrollbar (carousels) ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Partners marquee ── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  display: flex;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+.animate-marquee:hover { animation-play-state: paused; }

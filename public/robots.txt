@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Block internal Next.js paths and API routes from indexing
+Disallow: /api/
+Disallow: /_next/
+Disallow: /404
+Disallow: /500
+
+# Sitemap
+Sitemap: https://osc-web-xi.vercel.app/sitemap.xml
