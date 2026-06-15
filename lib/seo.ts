@@ -10,7 +10,7 @@ export const WEBSITE_ID  = `${SITE_URL}/#website`;
 
 export const ORG_NAME    = "OSC Top Solutions Group";
 export const ORG_LOGO    = `${SITE_URL}/logo-osc.png`;
-export const ORG_EMAIL   = "contacto@osctopsolutions.com";
+export const ORG_EMAIL   = "comunicaciones@osctopsolutionsgroup.com";
 export const ORG_LINKEDIN =
   "https://www.linkedin.com/company/osc-top-solutions-group/";
 
