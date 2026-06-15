@@ -212,28 +212,28 @@ const insight = {
 
 const faq = [
   {
-    q: "¿Pueden garantizar conectividad en zonas totalmente remotas sin infraestructura previa?",
-    a: "Sí. Para zonas sin infraestructura previa, combinamos redes 4G/5G privadas con backhaul microondas y conectividad satelital LEO (< 40 ms de latencia). Esta arquitectura multi-capa garantiza conectividad con 99.9%+ de disponibilidad incluso en ambientes geográficamente adversos.",
+    q: "¿Pueden garantizar conectividad en zonas sin infraestructura previa?",
+    a: "Sí, y es uno de nuestros entornos de mayor experiencia. Para zonas sin infraestructura, combinamos tres capas: red 4G/5G privada para cobertura local, backhaul microondas punto a punto para transporte, y conectividad satelital LEO como respaldo o capa primaria donde la fibra no llega. Esta arquitectura multi-capa entrega disponibilidad sostenida de 99.9%+ incluso en condiciones geográficas adversas. Los proyectos en minas a cielo abierto, campos de petróleo y zonas selváticas forman parte de nuestro portafolio habitual.",
   },
   {
-    q: "¿Cómo funciona el failover automático entre tecnologías?",
-    a: "Nuestra arquitectura SD-WAN detecta degradaciones o caídas en milisegundos y redirige el tráfico al enlace de respaldo sin intervención manual. El proceso completo de failover toma menos de 30 segundos. Los protocolos de enrutamiento dinámico garantizan continuidad del tráfico crítico sin pérdida de sesión.",
+    q: "¿Cómo funciona la conmutación automática si falla un enlace?",
+    a: "La arquitectura SD-WAN monitorea el estado de todos los enlaces en tiempo real y activa el failover automático en menos de 30 segundos ante degradación o caída, sin intervención manual del NOC. El proceso es transparente para las aplicaciones críticas: el tráfico SCADA, PTT y de videovigilancia tiene prioridad QoS garantizada y es el primero en ser restablecido. El enrutamiento dinámico asegura la continuidad de sesión sin pérdida de conexión activa. Cada evento de failover queda registrado con timestamp para análisis posterior.",
   },
   {
-    q: "¿Pueden asumir la operación de una red que no diseñaron o desplegaron?",
-    a: "Sí. Tenemos experiencia en transición de operaciones de redes heredadas. El proceso incluye una fase de auditoría y levantamiento técnico (4-8 semanas) para entender el estado real de la red, seguida de una fase de estabilización antes de asumir los SLAs contractuales.",
+    q: "¿Pueden operar y mantener una red que no diseñaron ni construyeron?",
+    a: "Sí, y con frecuencia así es como iniciamos con nuevos clientes. El proceso comienza con una auditoría técnica de 4 a 8 semanas: levantamiento del inventario real (que suele diferir de la documentación existente), evaluación del estado de cada nodo y mapeo de brechas operacionales. Después viene una fase de estabilización para resolver las deudas técnicas críticas. Solo entonces asumimos los SLAs contractuales. No adoptamos compromisos de disponibilidad sobre redes que no conocemos —ese rigor es precisamente lo que hace sostenible el SLA a largo plazo.",
   },
   {
-    q: "¿Qué SLA ofrecen y cómo se mide el uptime?",
-    a: "El SLA estándar es 99.99% de disponibilidad mensual (< 52 minutos de downtime/año). El uptime se mide con sondeos activos cada 30 segundos desde el NOC y es reportado en tiempo real en un dashboard del cliente. Penalidades contractuales aplicables si no se cumple.",
+    q: "¿Qué disponibilidad garantizan y cómo se verifica el cumplimiento?",
+    a: "El SLA estándar es 99.99% de disponibilidad mensual, equivalente a menos de 52 minutos de downtime acumulado por año. El uptime se mide mediante sondeos activos cada 30 segundos desde el NOC hacia todos los nodos de la red, con correlación automática para distinguir fallas reales de timeouts de monitoreo. Los resultados se publican en tiempo real en un dashboard dedicado al cliente. Si el SLA no se cumple en el mes, las penalidades contractuales se aplican sin que el cliente deba reclamarlas.",
   },
   {
-    q: "¿Cuánto tiempo toma desplegar una red 4G/5G privada?",
-    a: "Una red 4G privada de cobertura de sitio (1-3 sectores) puede estar operativa en 6-10 semanas desde la firma del contrato. Redes multi-sitio de mayor complejidad requieren entre 3 y 9 meses según geografía, permisos regulatorios y logística de acceso.",
+    q: "¿Cuánto tiempo toma tener una red 4G/5G privada operativa?",
+    a: "Una red 4G privada de sitio único (1 a 3 sectores de cobertura) puede estar operativa en 6 a 10 semanas desde la firma del contrato, incluyendo instalación física, integración al NOC y pruebas de aceptación. Proyectos multi-sitio o con componentes 5G SA (Standalone) requieren entre 3 y 9 meses, condicionados principalmente por los tiempos de permisos regulatorios y la logística de acceso en entornos remotos. La gestión de permisos ante los organismos reguladores está incluida como parte del servicio.",
   },
   {
-    q: "¿Trabajan con equipos de fabricantes específicos o son agnósticos?",
-    a: "Somos agnósticos de fabricante. Tenemos certificaciones y experiencia documentada con Ericsson, Nokia, Huawei, Cisco, Juniper, Cambium, Ubiquiti y otros. La selección de tecnología responde únicamente a los requerimientos técnicos del cliente.",
+    q: "¿Trabajan con fabricantes específicos o pueden adaptarse a nuestro entorno tecnológico?",
+    a: "Somos agnósticos de fabricante: la selección de tecnología responde exclusivamente a los requerimientos técnicos del proyecto, no a acuerdos de distribución ni preferencias comerciales. Contamos con certificaciones activas y proyectos referenciables con Ericsson, Nokia, Huawei, Cisco, Juniper, Cambium Networks y Ubiquiti, entre otros. Si el cliente tiene preferencia por un fabricante por razones de compatibilidad, soporte local o política corporativa de proveedores, lo respetamos. Si no tiene preferencia, hacemos la recomendación basada en el caso de uso y las condiciones del entorno.",
   },
 ];
 
@@ -499,44 +499,6 @@ export default function ConnectivityTelecomPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          05 · CERTIFICACIONES
-      ═══════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <AnimatedSection className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ backgroundColor: ACCENT }} />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ACCENT }}>Certificaciones vigentes</span>
-          </AnimatedSection>
-          <AnimatedSection className="mb-12">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#0F172A] leading-tight max-w-xl">
-                Madurez verificable, <span style={{ color: ACCENT }}>no solo declarada</span>
-              </h2>
-              <Link href="/nosotros" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-[#0F172A] transition-colors">
-                Ver Sistema de Gestión Integrado <ArrowUpRight size={13} />
-              </Link>
-            </div>
-          </AnimatedSection>
-          <div className="grid sm:grid-cols-3 gap-5">
-            {certifications.map((cert, i) => (
-              <AnimatedSection key={cert.code} delay={i * 0.08}>
-                <div className="group border border-slate-200/80 rounded-2xl p-8 hover:border-slate-300 hover:shadow-md transition-all duration-300 h-full flex flex-col relative overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl" style={{ background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT}20)` }} />
-                  <div className="inline-flex items-center font-black text-base px-4 py-1.5 rounded-xl mb-5 w-fit" style={{ backgroundColor: `${ACCENT}10`, color: ACCENT }}>{cert.code}</div>
-                  <h3 className="text-[#0F172A] font-bold text-lg mb-1">{cert.name}</h3>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#22c55e" }} />
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{cert.validity}</span>
-                  </div>
-                  <p className="text-slate-500 text-sm font-light leading-relaxed flex-1">{cert.description}</p>
-                  <div className="mt-6 h-px w-8 group-hover:w-14 rounded-full transition-all duration-500" style={{ backgroundColor: ACCENT }} />
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════
           06 · INSIGHTS

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import PodcastCarousel from "@/components/beyond-tech/PodcastCarousel";
+import Cases from "@/components/home/Cases";
 import { ArrowUpRight, Calendar, Clock, MapPin } from "lucide-react";
 
 // ─── Static image imports — bundled by Next.js → /_next/static/media/
@@ -17,36 +19,6 @@ export const metadata: Metadata = {
   description: "Casos de éxito, podcast y eventos. Pasamos de implementar tecnología a orquestar resultados.",
 };
 
-const cases = [
-  {
-    tag: "Telecom",
-    tagColor: "#0F172A",
-    title: "Red 5G Stand Alone para operaciones críticas en LATAM",
-    context: "Operador regional requería cobertura 5G privada para infraestructura crítica distribuida.",
-    problem: "Latencia inaceptable y falta de cobertura en zonas industriales remotas con protocolos de seguridad estrictos.",
-    solution: "Diseño e implementación de red 5G SA privada con slice dedicado para operaciones críticas, integrada con NOC regional.",
-    results: ["Latencia <5ms en zona de cobertura", "99.99% disponibilidad desde día 1", "Integración con plataformas SCADA existentes"],
-  },
-  {
-    tag: "Puertos",
-    tagColor: "#FF0057",
-    title: "Transformación digital de infraestructura portuaria",
-    context: "Puerto de primera categoría en América del Sur con necesidad de modernización urgente.",
-    problem: "Ineficiencia logística crítica, colas de espera de 8+ horas y falta de visibilidad en tiempo real.",
-    solution: "Plataforma integral de trazabilidad con IoT, video analítica e integración con sistema TOS existente.",
-    results: ["40% reducción en tiempos de espera", "Trazabilidad 100% de contenedores", "ROI positivo en 18 meses"],
-  },
-  {
-    tag: "Energía",
-    tagColor: "#0F172A",
-    title: "Expansión fibra óptica en zonas remotas",
-    context: "Empresa energética con operaciones distribuidas en +200 sitios remotos sin conectividad confiable.",
-    problem: "Dependencia de satélite con costos elevados, alta latencia y baja disponibilidad.",
-    solution: "Tendido de 5,000 km de fibra óptica con anillos de redundancia y NOC dedicado para gestión proactiva.",
-    results: ["+5,000 km de red propia operativa", "90% reducción en costos de conectividad", "Tiempo de falla promedio <4h"],
-  },
-];
-
 // ─── EVENTS ────────────────────────────────────────────────────────────────
 // dateISO drives upcoming / past split at build time.
 // Update dates when official confirmations arrive.
@@ -55,8 +27,8 @@ const EVENTS = [
     title:     "Transformando la Resiliencia Energética",
     subtitle:  "El Futuro de las Power Utilities · Infraestructura energética crítica en LATAM",
     location:  "Por confirmar",
-    date:      "Próximamente",
-    dateISO:   "2026-12-31",
+    date:      "20 May 2026",
+    dateISO:   "2026-05-20",
     type:      "Conferencia",
     typeColor: "#000086",
     image:     imgPowerUtils.src,
@@ -139,7 +111,7 @@ const posts = [
     date: "2025",
     readTime: "5 min",
     image: "https://osctopsolutionsgroup.com/wp-content/uploads/2026/02/Mineria.jpg",
-    href: "https://osctopsolutionsgroup.com/informativo/redes-privadas-mineria-4-0/",
+    href: "/beyond-tech/blog/redes-privadas-mineria-4-0",
   },
   {
     category: "Ciberseguridad",
@@ -149,7 +121,7 @@ const posts = [
     date: "28 Feb 2025",
     readTime: "6 min",
     image: "",
-    href: "https://www.linkedin.com/pulse/blindaje-operativo-estrategia-integral-de-ciberseguridad-3vwle/",
+    href: "/beyond-tech/blog/blindaje-operativo",
   },
   {
     category: "Transformación Industrial",
@@ -159,7 +131,7 @@ const posts = [
     date: "15 Feb 2025",
     readTime: "7 min",
     image: "",
-    href: "https://www.linkedin.com/pulse/el-abismo-itot-por-qu%C3%A9-la-transformaci%C3%B3n-industrial-en-latam-wjzse/",
+    href: "/beyond-tech/blog/abismo-itot-latam",
   },
   {
     category: "Ciberseguridad",
@@ -169,7 +141,7 @@ const posts = [
     date: "2025",
     readTime: "4 min",
     image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/La-Clave-Humana-en-la-Ciberseguridad.webp",
-    href: "https://osctopsolutionsgroup.com/informativo/la-clave-humana-en-la-ciberseguridad/",
+    href: "/beyond-tech/blog/la-clave-humana-en-la-ciberseguridad",
   },
   {
     category: "Telecom",
@@ -179,7 +151,7 @@ const posts = [
     date: "2025",
     readTime: "6 min",
     image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/Monetizacion-efectiva-de-5G-Innovacion-en-la-nube-y-el-borde.webp",
-    href: "https://osctopsolutionsgroup.com/informativo/monetizacion-efectiva-de-5g-innovacion-en-la-nube-y-el-borde/",
+    href: "/beyond-tech/blog/monetizacion-efectiva-de-5g",
   },
   {
     category: "Ciberseguridad",
@@ -189,7 +161,7 @@ const posts = [
     date: "2025",
     readTime: "5 min",
     image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/La-estrategia-de-lumu-en-ciberseguridad.png",
-    href: "https://osctopsolutionsgroup.com/informativo/transferencia-y-aprendizaje-en-linea-la-estrategia-de-lumu-en-ciberseguridad/",
+    href: "/beyond-tech/blog/estrategia-lumu-ciberseguridad",
   },
 ];
 
@@ -225,106 +197,7 @@ export default function BeyondTechPage() {
       </section>
 
       {/* Casos de Éxito */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle, rgba(0,0,134,0.045) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-
-        <div className="relative max-w-7xl mx-auto px-6">
-
-          {/* Header */}
-          <AnimatedSection className="mb-16">
-            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-              <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] max-w-xl leading-tight">
-                Resultados que <span className="text-gradient">definen el estándar</span>
-              </h2>
-              <p className="text-slate-400 text-sm font-light max-w-xs leading-relaxed lg:text-right">
-                Proyectos reales. Métricas verificables.<br />
-                Impacto sostenido en infraestructuras críticas de LATAM.
-              </p>
-            </div>
-          </AnimatedSection>
-
-          {/* Cards — horizontal 3-col grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cases.map((c, i) => (
-              <AnimatedSection key={c.title} delay={i * 0.12}>
-                <div className="group relative bg-white border border-gray-100 hover:border-gray-200 hover:shadow-2xl rounded-3xl overflow-hidden transition-all duration-500 cursor-pointer flex flex-col h-full">
-
-                  {/* Colored header band */}
-                  <div className="relative px-7 pt-7 pb-6" style={{ background: `linear-gradient(135deg, ${c.tagColor}10 0%, ${c.tagColor}04 100%)` }}>
-                    {/* Top accent */}
-                    <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-3xl" style={{ background: `linear-gradient(90deg, ${c.tagColor} 0%, ${c.tagColor}44 60%, transparent 100%)` }} />
-
-                    {/* Tag + number */}
-                    <div className="flex items-center justify-between mb-5">
-                      <span className="text-[10px] font-black uppercase tracking-[0.22em] px-3.5 py-1.5 rounded-full text-white shadow-sm" style={{ background: c.tagColor }}>
-                        {c.tag}
-                      </span>
-                      <span className="text-[11px] font-black tabular-nums" style={{ color: `${c.tagColor}55` }}>
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-[#0F172A] font-bold text-lg leading-snug group-hover:text-[#FF0057] transition-colors duration-300">
-                      {c.title}
-                    </h3>
-                  </div>
-
-                  {/* Body */}
-                  <div className="flex flex-col flex-1 px-7 py-6 gap-5">
-
-                    {/* 3 blocks stacked */}
-                    {[
-                      { label: "Contexto",     content: c.context,  num: "01" },
-                      { label: "Desafío",      content: c.problem,  num: "02" },
-                      { label: "Solución OSC", content: c.solution, num: "03" },
-                    ].map((block) => (
-                      <div key={block.label} className="flex gap-3">
-                        <span
-                          className="mt-0.5 text-[9px] font-black tabular-nums w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-                          style={{ background: `${c.tagColor}12`, color: c.tagColor }}
-                        >
-                          {block.num}
-                        </span>
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-300 mb-1">{block.label}</p>
-                          <p className="text-slate-500 text-sm font-light leading-relaxed">{block.content}</p>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Results */}
-                    <div className="mt-auto pt-5 border-t border-gray-100">
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 mb-3">Resultados</p>
-                      <div className="flex flex-col gap-2">
-                        {c.results.map((r) => (
-                          <div key={r} className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: c.tagColor }} />
-                            <span className="text-[12px] font-bold" style={{ color: c.tagColor }}>{r}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Hover arrow */}
-                  <div className="absolute bottom-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: c.tagColor }}>
-                      <ArrowUpRight size={14} className="text-white" />
-                    </div>
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Cases />
 
       {/* Podcast */}
       <section className="py-24 bg-[#0F172A] relative overflow-hidden">
@@ -584,15 +457,13 @@ export default function BeyondTechPage() {
               <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] max-w-xl leading-tight">
                 Perspectivas del <span className="text-gradient">ecosistema crítico</span>
               </h2>
-              <a
-                href="https://osctopsolutionsgroup.com/informativo/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/beyond-tech/blog"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-[#FF0057] hover:gap-3 transition-all duration-200 self-start lg:self-end"
               >
                 Ver todos los artículos
                 <ArrowUpRight size={16} />
-              </a>
+              </Link>
             </div>
           </AnimatedSection>
 
@@ -600,10 +471,8 @@ export default function BeyondTechPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post, i) => (
               <AnimatedSection key={post.title} delay={i * 0.08}>
-                <a
+                <Link
                   href={post.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="group flex flex-col bg-white border border-gray-100 hover:border-gray-200 hover:shadow-2xl rounded-3xl overflow-hidden transition-all duration-300 h-full cursor-pointer"
                 >
                   {/* ── Image header ── */}
@@ -654,7 +523,7 @@ export default function BeyondTechPage() {
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               </AnimatedSection>
             ))}
           </div>

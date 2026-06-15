@@ -170,28 +170,28 @@ const insight = {
 
 const faq = [
   {
-    q: "¿Cómo garantizan la calidad del personal técnico que proveen?",
-    a: "Todos los perfiles pasan por un proceso de selección técnica con evaluación práctica, verificación de antecedentes y certificaciones. Mantenemos un banco activo de más de 200 perfiles pre-evaluados por especialidad y país. Además, los primeros 30 días incluyen un período de evaluación con opción de reemplazo sin costo.",
+    q: "¿Cómo garantizan la calidad del personal técnico que asignan?",
+    a: "Cada perfil pasa por cinco filtros antes de estar disponible para asignación: evaluación técnica práctica (no solo revisión de CV), verificación de referencias en proyectos anteriores, prueba de inglés técnico, validación de certificaciones vigentes y entrevista con el área de delivery de OSC. Mantenemos un banco activo de más de 200 perfiles pre-evaluados por especialidad y país. Los primeros 30 días operan como período de garantía: si el perfil no cumple las expectativas técnicas definidas en el brief, lo reemplazamos sin costo adicional.",
   },
   {
-    q: "¿Podemos escalar o reducir el equipo según demanda estacional?",
-    a: "Sí. El modelo está diseñado para variabilidad. Podemos aumentar o reducir el alcance trimestralmente sin penalidades. La única restricción es un aviso de 30 días para reducciones significativas (>20% del equipo) para garantizar la transferencia de conocimiento adecuada.",
+    q: "¿Podemos ajustar el equipo según la demanda operacional del negocio?",
+    a: "Sí, y esa flexibilidad es una de las ventajas centrales del modelo. Puede ampliar el equipo con un aviso de 15 días para posiciones estándar, o en 48 horas si el perfil ya está en el banco preaprobado. Para reducciones superiores al 20%, solicitamos 30 días de anticipación para garantizar la transferencia de conocimiento sin brechas operacionales. No existen cargos de penalización por ajuste de volumen dentro del contrato vigente.",
   },
   {
-    q: "¿Cómo funciona la transición de un NOC interno a modelo gestionado?",
-    a: "La transición toma entre 8 y 16 semanas en tres fases: (1) Auditoría y documentación del estado actual, (2) período de operación en paralelo con el equipo interno, (3) transferencia completa con SLAs activos. El equipo interno no es desvinculado de golpe — se hace una transición ordenada.",
+    q: "¿Cómo funciona la migración de un NOC interno a un modelo gestionado?",
+    a: "La transición sigue tres fases que protegen la continuidad operacional en todo momento. Fase 1 (semanas 1-4): auditoría y documentación del estado actual sin intervenir en la operación. Fase 2 (semanas 5-12): operación en paralelo con el equipo interno —aprendemos el entorno mientras ellos mantienen el control. Fase 3 (semanas 13-16): la responsabilidad operacional migra formalmente a OSC con SLAs activos. El equipo interno no es desvinculado de forma abrupta; la transferencia de conocimiento es parte del alcance contractual.",
   },
   {
-    q: "¿Tienen habilitaciones de seguridad para trabajar en infraestructuras gubernamentales?",
-    a: "Sí. Contamos con personal con habilitaciones de seguridad en múltiples países de la región para trabajo en instalaciones clasificadas, bases militares, aeropuertos y otras infraestructuras con requisitos de seguridad elevados.",
+    q: "¿Su personal puede operar en instalaciones con requisitos de seguridad elevados?",
+    a: "Sí. Contamos con personal con habilitaciones de seguridad vigentes en múltiples países de LATAM para operación en entornos sensibles: bases militares, aeropuertos, plantas de generación eléctrica y centros de datos gubernamentales. Nuestros procesos de selección incluyen verificación de antecedentes penales, policiales y crediticios adaptados a los requerimientos específicos del cliente y la jurisdicción aplicable.",
   },
   {
-    q: "¿Cómo manejan la confidencialidad de los datos de nuestros clientes finales?",
-    a: "Operamos bajo acuerdos de confidencialidad estrictos con cada cliente. Nuestras políticas de seguridad de datos cumplen ISO 27001 y son auditadas anualmente. El personal operativo solo accede a la información necesaria para su función, con trazabilidad completa de accesos.",
+    q: "¿Cómo protegen la información que manejamos en nombre de nuestros clientes?",
+    a: "Operamos bajo NDAs individuales con cada cliente y bajo los controles de ISO 27001, auditados anualmente. El personal operativo accede únicamente a la información necesaria para su función (principio de mínimo privilegio), con trazabilidad completa de accesos y registros auditables. Los entornos de cada cliente están lógicamente segmentados y nunca se comparten entre cuentas. Los informes de auditoría interna están disponibles para revisión del cliente bajo acuerdo de confidencialidad.",
   },
   {
-    q: "¿Cuál es el modelo de precios? ¿Hay compromisos de volumen mínimo?",
-    a: "Ofrecemos tres modelos: (1) por posición/recurso mensual, (2) fee fijo por servicio gestionado con SLA, y (3) modelo mixto para operaciones complejas. El volumen mínimo depende del servicio — algunos como PMO o NOC requieren un mínimo para ser sostenibles. Lo definimos en la propuesta técnica.",
+    q: "¿Cómo es el modelo de precios y existen mínimos de contratación?",
+    a: "Manejamos tres esquemas según la naturaleza del servicio: (1) precio por posición mensual para workforce especializado, (2) fee fijo por servicio gestionado con SLA para NOC, SOC o PMO, y (3) modelo híbrido con componentes variables para operaciones complejas. Los contratos base son de 12 meses —tiempo suficiente para amortizar el onboarding y estabilizar la operación—, con renovaciones anuales. El mínimo de contratación no es arbitrario: se define según lo que técnicamente hace sostenible el nivel de servicio comprometido.",
   },
 ];
 
@@ -538,78 +538,6 @@ export default function ManagedServicesPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          05 · CERTIFICACIONES
-      ═══════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <AnimatedSection className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ backgroundColor: ACCENT }} />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ACCENT }}>
-              Certificaciones vigentes
-            </span>
-          </AnimatedSection>
-
-          <AnimatedSection className="mb-12">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#0F172A] leading-tight max-w-xl">
-                Madurez verificable,{" "}
-                <span style={{ color: ACCENT }}>no solo declarada</span>
-              </h2>
-              <Link
-                href="/nosotros"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-[#0F172A] transition-colors"
-              >
-                Ver Sistema de Gestión Integrado <ArrowUpRight size={13} />
-              </Link>
-            </div>
-          </AnimatedSection>
-
-          <div className="grid sm:grid-cols-3 gap-5">
-            {certifications.map((cert, i) => (
-              <AnimatedSection key={cert.code} delay={i * 0.08}>
-                <div className="group border border-slate-200/80 rounded-2xl p-8 hover:border-slate-300 hover:shadow-md transition-all duration-300 h-full flex flex-col relative overflow-hidden">
-                  {/* Top accent */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
-                    style={{ background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT}20)` }}
-                  />
-
-                  {/* Code badge */}
-                  <div
-                    className="inline-flex items-center font-black text-base px-4 py-1.5 rounded-xl mb-5 w-fit"
-                    style={{ backgroundColor: `${ACCENT}10`, color: ACCENT }}
-                  >
-                    {cert.code}
-                  </div>
-
-                  <h3 className="text-[#0F172A] font-bold text-lg mb-1">{cert.name}</h3>
-
-                  {/* Validity */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full animate-pulse"
-                      style={{ backgroundColor: "#22c55e" }}
-                    />
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      {cert.validity}
-                    </span>
-                  </div>
-
-                  <p className="text-slate-500 text-sm font-light leading-relaxed flex-1">
-                    {cert.description}
-                  </p>
-
-                  <div
-                    className="mt-6 h-px w-8 group-hover:w-14 rounded-full transition-all duration-500"
-                    style={{ backgroundColor: ACCENT }}
-                  />
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════
           06 · INSIGHTS

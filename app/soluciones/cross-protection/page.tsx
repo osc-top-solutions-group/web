@@ -157,28 +157,28 @@ const insight = {
 
 const faq = [
   {
-    q: "¿Qué diferencia a OSC en ciberseguridad OT frente a vendors tradicionales?",
-    a: "Llevamos 30 años operando infraestructuras OT reales — no solo instalando software. Nuestro NOC-SOC entiende las dinámicas de control industrial (SCADA, PLCs, DCS) con la misma profundidad que los entornos TI. IEC 62443 no es una certificación que obtenemos para vender; es el estándar con el que operamos desde el primer día.",
+    q: "¿Qué diferencia a OSC de los vendors de ciberseguridad tradicionales en entornos OT?",
+    a: "La diferencia es operacional, no comercial. Llevamos 30 años gestionando infraestructura OT real —redes eléctricas, puertos, minas, telecomunicaciones— antes de que el término 'ciberseguridad OT' existiera como categoría de mercado. Nuestro NOC-SOC comprende que en un PLC, un falso positivo que dispara una parada de emergencia puede costar más que el incidente real. Eso nos lleva a tomar decisiones distintas a las que tomaría un analista de seguridad TI aplicando las mismas herramientas a un entorno de control industrial.",
   },
   {
-    q: "¿Cuál es el MTTR garantizado por SLA?",
-    a: "El MTTR (Mean Time To Respond) contractual es de < 15 minutos para incidentes P1. Nuestro NOC prioriza por impacto operacional, no por volumen de alertas. La respuesta incluye contención, notificación y primer diagnóstico — no solo el acuse de recibo.",
+    q: "¿Cuál es el tiempo de respuesta garantizado ante un incidente crítico?",
+    a: "El SLA contractual establece un MTTR (Mean Time To Respond) menor a 15 minutos para incidentes P1 en entornos OT/IT. La respuesta incluye contención inicial, notificación al responsable del cliente y primer diagnóstico —no únicamente el acuse de recibo de la alerta. Para incidentes P2 y P3, los tiempos son menores a 1 hora y 4 horas respectivamente. Estos compromisos están respaldados por penalidades contractuales; no son metas aspiracionales.",
   },
   {
-    q: "¿El despliegue requiere downtime? ¿Cuánto tiempo toma el onboarding?",
-    a: "Zero downtime. Utilizamos un enfoque de despliegue pasivo-primero: sensores en modo observación durante las primeras semanas antes de activar capacidades de contención. El onboarding completo toma entre 4 y 10 semanas dependiendo de la complejidad del entorno. El piloto operativo se activa desde la semana 4.",
+    q: "¿El despliegue afecta la operación? ¿Cuánto tiempo toma la puesta en marcha?",
+    a: "Zero downtime. Comenzamos con un enfoque pasivo: los sensores operan en modo observación durante las primeras 2 a 4 semanas sin intervenir en la red OT. Esto nos permite aprender el baseline de operación antes de activar cualquier capacidad de detección o contención. El onboarding completo toma entre 4 y 10 semanas según la complejidad del entorno. Desde la semana 4, el piloto ya genera visibilidad operacional aunque los SLAs formales aún no estén activos.",
   },
   {
-    q: "¿Son agnósticos de vendor o nos empujan hacia tecnologías propias?",
-    a: "Somos 100% agnósticos. Integramos Fortinet, Palo Alto, Tenable, Rapid7, Claroty, Splunk y cualquier stack existente. No hay lock-in: usted es dueño de sus datos, configuraciones y licencias. OSC provee el layer de integración y operación, no el vendor único.",
+    q: "¿Trabajan con nuestro stack tecnológico actual o nos obligan a cambiar de plataforma?",
+    a: "Somos 100% independientes de vendor y lo hacemos por principio, no por limitación de catálogo. Integramos Fortinet, Palo Alto, Tenable, Rapid7, Claroty, Nozomi, Splunk, Microsoft Sentinel y cualquier stack existente. Usted conserva la propiedad de sus licencias, datos y configuraciones —OSC actúa como la capa de integración y operación, no como el proveedor único. Si en el futuro decide cambiar de plataforma, no existe lock-in que se lo impida.",
   },
   {
-    q: "¿Cumple con NERC CIP, Habeas Data, LGPD y marcos regulatorios regionales?",
-    a: "Sí. La certificación ISO 27001 + IEC 62443 cubre la base de todos los marcos regulatorios aplicables en LATAM. Para NERC CIP (mercados eléctricos), tenemos casos documentados de migración de entornos con hallazgos a cero hallazgos en auditoría. Nuestra política de privacidad es multi-jurisdicción y está disponible en /legal.",
+    q: "¿Cumplen con NERC CIP, LGPD, Ley 1581 y otros marcos regulatorios del sector?",
+    a: "Sí. La base está cubierta por IEC 62443 + ISO 27001 vigentes, que funcionan como marco paraguas para los estándares regulatorios aplicables en LATAM: NERC CIP para el sector eléctrico, LGPD en Brasil, Ley 1581 en Colombia y los requisitos de protección de infraestructura crítica de cada país. Contamos con casos documentados de clientes que pasaron de múltiples hallazgos de auditoría a cero hallazgos tras nuestra intervención. La documentación de cumplimiento está disponible bajo NDA.",
   },
   {
-    q: "¿Cómo funciona el modelo de precios? ¿Hay CAPEX?",
-    a: "Modelo SaaS predecible: tecnología + operación 24/7 en un único fee mensual. Sin CAPEX oculto ni sorpresas. El SLA publicado incluye 99.95% de disponibilidad, MTTR < 15 min y tiempo de respuesta P1 < 1 hora. Puedes escalar o reducir el alcance trimestralmente sin penalidades.",
+    q: "¿Cómo es el modelo comercial? ¿Se requiere inversión inicial en equipos o licencias?",
+    a: "El modelo es un fee mensual único que cubre tecnología + operación 24/7: sin CAPEX inicial, sin costos ocultos de integración y sin sorpresas de licenciamiento. La disponibilidad contratada es 99.95% con MTTR menor a 15 minutos como SLA publicado. El alcance puede ampliarse o reducirse trimestralmente —nuevos sitios, vectores adicionales de análisis, reducción de cobertura— sin penalidades fuera del período contractual base.",
   },
 ];
 
@@ -538,78 +538,6 @@ export default function CrossProtectionPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          05 · CERTIFICACIONES
-      ═══════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <AnimatedSection className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ backgroundColor: ACCENT }} />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ACCENT }}>
-              Certificaciones vigentes
-            </span>
-          </AnimatedSection>
-
-          <AnimatedSection className="mb-12">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#0F172A] leading-tight max-w-xl">
-                Madurez verificable,{" "}
-                <span style={{ color: ACCENT }}>no solo declarada</span>
-              </h2>
-              <Link
-                href="/nosotros"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-[#0F172A] transition-colors"
-              >
-                Ver Sistema de Gestión Integrado <ArrowUpRight size={13} />
-              </Link>
-            </div>
-          </AnimatedSection>
-
-          <div className="grid sm:grid-cols-3 gap-5">
-            {certifications.map((cert, i) => (
-              <AnimatedSection key={cert.code} delay={i * 0.08}>
-                <div className="group border border-slate-200/80 rounded-2xl p-8 hover:border-slate-300 hover:shadow-md transition-all duration-300 h-full flex flex-col relative overflow-hidden">
-                  {/* Top accent */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
-                    style={{ background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT}20)` }}
-                  />
-
-                  {/* Code badge */}
-                  <div
-                    className="inline-flex items-center font-black text-base px-4 py-1.5 rounded-xl mb-5 w-fit"
-                    style={{ backgroundColor: `${ACCENT}10`, color: ACCENT }}
-                  >
-                    {cert.code}
-                  </div>
-
-                  <h3 className="text-[#0F172A] font-bold text-lg mb-1">{cert.name}</h3>
-
-                  {/* Validity */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full animate-pulse"
-                      style={{ backgroundColor: "#22c55e" }}
-                    />
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      {cert.validity}
-                    </span>
-                  </div>
-
-                  <p className="text-slate-500 text-sm font-light leading-relaxed flex-1">
-                    {cert.description}
-                  </p>
-
-                  <div
-                    className="mt-6 h-px w-8 group-hover:w-14 rounded-full transition-all duration-500"
-                    style={{ backgroundColor: ACCENT }}
-                  />
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════
           06 · INSIGHTS

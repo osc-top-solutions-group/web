@@ -212,28 +212,28 @@ const insight = {
 
 const faq = [
   {
-    q: "¿La analítica de video reemplaza mis cámaras actuales?",
-    a: "No necesariamente. En la mayoría de los casos, integramos nuestra plataforma de analítica sobre la infraestructura de video existente mediante software en el edge o en la nube. La migración a cámaras con analítica embebida es opcional y se evalúa en la fase de diagnóstico.",
+    q: "¿Necesito reemplazar mis cámaras actuales para usar la analítica de IA?",
+    a: "En la mayoría de los casos, no. Nuestra plataforma se integra sobre la infraestructura de video existente a través de unidades de procesamiento en el edge, sin necesidad de reemplazar cámaras ni modificar el cableado. La evaluación de compatibilidad forma parte del diagnóstico inicial y no tiene costo. La migración a cámaras con analítica embebida es una decisión de largo plazo basada en ROI, no un prerequisito para comenzar a generar valor.",
   },
   {
-    q: "¿Cómo se integra con nuestros sistemas ERP y SCADA existentes?",
-    a: "La plataforma SISE cuenta con conectores nativos para los principales ERP (SAP, Oracle), SCADA (Ignition, Wonderware) y sistemas de despacho. La integración se realiza mediante APIs estándar sin necesidad de reemplazar sistemas existentes.",
+    q: "¿Cómo se conecta con nuestros sistemas ERP, SCADA y plataformas de despacho?",
+    a: "La plataforma SISE incluye conectores nativos para los principales sistemas del mercado: SAP, Oracle, Ignition, Wonderware, OSIsoft PI y sistemas de despacho propietarios. Las integraciones se realizan mediante APIs estándar (REST, MQTT, OPC-UA) en un proceso que toma entre 2 y 4 semanas por sistema. Si su plataforma no figura en la lista de conectores certificados, desarrollamos la integración —está incluida en el alcance del proyecto sin costo adicional.",
   },
   {
-    q: "¿Qué tan precisa es la detección de IA? ¿Genera muchas falsas alarmas?",
-    a: "La precisión varía entre 94% y 99% dependiendo del tipo de análisis y las condiciones del entorno. El proceso de calibración del modelo en las primeras semanas reduce los falsos positivos a menos de 10/día. Los modelos se ajustan continuamente con retroalimentación del operador.",
+    q: "¿Qué tan precisa es la detección? ¿Cuántas falsas alarmas genera el sistema?",
+    a: "La precisión oscila entre 94% y 99% según el tipo de análisis —detección de intrusión, análisis de flujo, reconocimiento de patrones, conteo de personas— y las condiciones del entorno. Durante las primeras 4 a 6 semanas, el modelo se calibra con retroalimentación del operador para reducir los falsos positivos. En instalaciones con calibración completa, los falsos positivos son menores a 8 por día. Los modelos se ajustan automáticamente durante toda la vida del contrato sin costo de reentrenamiento.",
   },
   {
-    q: "¿El sistema opera sin conectividad continua a Internet?",
-    a: "Sí. Diseñamos arquitecturas edge-first donde el procesamiento de IA ocurre localmente. La conectividad a la nube se usa para sincronización, reportería y backups. La plataforma opera con autonomía completa en modo offline.",
+    q: "¿El sistema funciona si se pierde la conexión a Internet o a la nube?",
+    a: "Sí, y está diseñado específicamente para eso. Adoptamos una arquitectura edge-first: todo el procesamiento de IA ocurre localmente en los nodos de cómputo instalados en sitio. La conectividad a la nube se usa exclusivamente para sincronización de modelos, reportería centralizada y respaldo de configuraciones. En modo offline, el sistema mantiene el 100% de sus capacidades de detección y alerta local. La autonomía offline es configurable entre 24 horas y 30 días según la capacidad de almacenamiento disponible en sitio.",
   },
   {
-    q: "¿Cuánto tiempo toma implementar un centro de comando unificado?",
-    a: "Un centro de comando básico con integración de 3-5 sistemas puede estar operativo en 8 a 12 semanas. Proyectos C5i de ciudad completa requieren entre 6 y 18 meses dependiendo de la cantidad de sistemas, usuarios y proceso de capacitación requerido.",
+    q: "¿Cuánto tiempo toma poner en marcha un centro de comando operativo?",
+    a: "Depende del alcance. Un centro de operaciones con integración de 3 a 5 sistemas puede estar funcionando en 8 a 12 semanas. Centros C4i o C5i de ciudad completa —con múltiples fuentes de datos, videomuro, sistemas de despacho y flujos de trabajo para decenas de operadores simultáneos— requieren entre 6 y 18 meses. La metodología de implementación es por fases: el primer módulo operativo se activa a las 4 semanas para comenzar a generar valor desde el inicio del proyecto.",
   },
   {
-    q: "¿Cómo manejan la privacidad de los datos y cumplimiento de regulaciones?",
-    a: "La plataforma cumple con LGPD, Ley 1581 (Colombia), Habeas Data y marcos regulatorios regionales. Los datos biométricos y de video se almacenan localmente con cifrado AES-256. Podemos proveer un DPA (Data Processing Agreement) adaptado a la jurisdicción del cliente.",
+    q: "¿Cómo gestionan la privacidad de los datos de video y biometría?",
+    a: "La plataforma cumple con LGPD (Brasil), Ley 1581 (Colombia), Habeas Data y los marcos regulatorios de privacidad vigentes en cada país donde operamos. Los datos de video y biométricos se almacenan localmente con cifrado AES-256 y no se transmiten a la nube sin autorización explícita del operador. Entregamos un DPA (Data Processing Agreement) adaptado a la jurisdicción del cliente y participamos en las revisiones de cumplimiento con entes reguladores cuando el proyecto lo requiere.",
   },
 ];
 
@@ -587,78 +587,6 @@ export default function SmartSolutionsPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
-          05 · CERTIFICACIONES
-      ═══════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <AnimatedSection className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px" style={{ backgroundColor: ACCENT }} />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ACCENT }}>
-              Certificaciones vigentes
-            </span>
-          </AnimatedSection>
-
-          <AnimatedSection className="mb-12">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#0F172A] leading-tight max-w-xl">
-                Madurez verificable,{" "}
-                <span style={{ color: ACCENT }}>no solo declarada</span>
-              </h2>
-              <Link
-                href="/nosotros"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-[#0F172A] transition-colors"
-              >
-                Ver Sistema de Gestión Integrado <ArrowUpRight size={13} />
-              </Link>
-            </div>
-          </AnimatedSection>
-
-          <div className="grid sm:grid-cols-3 gap-5">
-            {certifications.map((cert, i) => (
-              <AnimatedSection key={cert.code} delay={i * 0.08}>
-                <div className="group border border-slate-200/80 rounded-2xl p-8 hover:border-slate-300 hover:shadow-md transition-all duration-300 h-full flex flex-col relative overflow-hidden">
-                  {/* Top accent */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
-                    style={{ background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT}20)` }}
-                  />
-
-                  {/* Code badge */}
-                  <div
-                    className="inline-flex items-center font-black text-base px-4 py-1.5 rounded-xl mb-5 w-fit"
-                    style={{ backgroundColor: `${ACCENT}10`, color: ACCENT }}
-                  >
-                    {cert.code}
-                  </div>
-
-                  <h3 className="text-[#0F172A] font-bold text-lg mb-1">{cert.name}</h3>
-
-                  {/* Validity */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full animate-pulse"
-                      style={{ backgroundColor: "#22c55e" }}
-                    />
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      {cert.validity}
-                    </span>
-                  </div>
-
-                  <p className="text-slate-500 text-sm font-light leading-relaxed flex-1">
-                    {cert.description}
-                  </p>
-
-                  <div
-                    className="mt-6 h-px w-8 group-hover:w-14 rounded-full transition-all duration-500"
-                    style={{ backgroundColor: ACCENT }}
-                  />
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════
           06 · INSIGHTS

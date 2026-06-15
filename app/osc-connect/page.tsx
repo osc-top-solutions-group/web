@@ -21,7 +21,7 @@ const portals = [
       "Directorio de colaboradores",
     ],
     cta: "Acceder a Nexus",
-    href: "#nexus",
+    href: "https://intranet.osctopsolutionsgroup.com/",
     color: "#FF0057",
   },
   {

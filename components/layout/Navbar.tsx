@@ -109,9 +109,9 @@ function MegaMenuSoluciones({ onClose }: { onClose: () => void }) {
   const activeCategory = solucionesData.categories.find((c) => c.id === active)!;
 
   return (
-    <div className="flex" style={{ minWidth: 920 }}>
+    <div className="flex w-full" style={{ minWidth: 0 }}>
       {/* Left — category tabs */}
-      <div className="w-48 shrink-0 bg-gray-50 rounded-l-2xl p-4 border-r border-gray-100">
+      <div className="w-44 shrink-0 bg-gray-50 rounded-l-2xl p-3 border-r border-gray-100">
         <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 mb-3">
           Áreas de solución
         </p>
@@ -122,15 +122,15 @@ function MegaMenuSoluciones({ onClose }: { onClose: () => void }) {
                 href={cat.href}
                 onMouseEnter={() => setActive(cat.id)}
                 onClick={onClose}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group cursor-pointer ${
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left transition-all duration-150 group cursor-pointer ${
                   active === cat.id
                     ? "bg-white shadow-sm text-gray-900"
                     : "text-gray-500 hover:bg-white hover:text-gray-900"
                 }`}
               >
-                <span className="text-sm font-semibold leading-tight">{cat.title}</span>
+                <span className="text-xs font-semibold leading-tight">{cat.title}</span>
                 {active === cat.id && (
-                  <ChevronRight size={12} className="ml-auto text-gray-400" />
+                  <ChevronRight size={11} className="ml-auto text-gray-400 shrink-0" />
                 )}
               </Link>
             </li>
@@ -138,8 +138,8 @@ function MegaMenuSoluciones({ onClose }: { onClose: () => void }) {
         </ul>
       </div>
 
-      {/* Right — items 5-column grid */}
-      <div className="flex-1 p-6">
+      {/* Right — items grid */}
+      <div className="flex-1 p-4 min-w-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
@@ -149,22 +149,22 @@ function MegaMenuSoluciones({ onClose }: { onClose: () => void }) {
             transition={{ duration: 0.15 }}
           >
             {/* Category header */}
-            <div className="mb-5 flex items-end justify-between">
+            <div className="mb-4 flex items-end justify-between">
               <div>
                 <p className="text-sm font-bold text-gray-900">{activeCategory.title}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{activeCategory.tagline}</p>
               </div>
-              <span className="text-[10px] text-gray-300 tabular-nums font-medium">
+              <span className="text-[10px] text-gray-300 tabular-nums font-medium ml-4 shrink-0">
                 {activeCategory.items.length} servicios
               </span>
             </div>
 
-            {/* Items — 5 columns × 2 rows */}
-            <div className="grid grid-cols-5 gap-x-3 gap-y-2">
+            {/* Items — responsive grid */}
+            <div className="grid grid-cols-3 xl:grid-cols-5 gap-x-2 gap-y-2">
               {activeCategory.items.map((item) => (
                 <div
                   key={item.label}
-                  className="group/item flex flex-col gap-1.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors duration-150 cursor-default"
+                  className="group/item flex flex-col gap-1.5 p-2 rounded-xl hover:bg-gray-50 transition-colors duration-150 cursor-default"
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full shrink-0 transition-transform duration-200 group-hover/item:scale-125"
@@ -199,9 +199,9 @@ const nosotrosLinks = [
 
 function MegaMenuNosotros({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex" style={{ minWidth: 920 }}>
+    <div className="flex w-full" style={{ minWidth: 0 }}>
       {/* Left — gray intro panel */}
-      <div className="w-48 shrink-0 bg-gray-50 rounded-l-2xl p-4 border-r border-gray-100 flex flex-col justify-between">
+      <div className="w-44 shrink-0 bg-gray-50 rounded-l-2xl p-3 border-r border-gray-100 flex flex-col justify-between">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 mb-3">Compañía</p>
           <div className="px-2">
@@ -222,29 +222,27 @@ function MegaMenuNosotros({ onClose }: { onClose: () => void }) {
         </Link>
       </div>
 
-      {/* Right — 5-column grid */}
-      <div className="flex-1 p-6">
-        <div className="mb-5 flex items-end justify-between">
+      {/* Right — grid */}
+      <div className="flex-1 p-4 min-w-0">
+        <div className="mb-4 flex items-end justify-between">
           <div>
             <p className="text-sm font-bold text-gray-900">Nosotros</p>
             <p className="text-xs text-gray-400 mt-0.5">Conoce quiénes somos y cómo operamos</p>
           </div>
-          <span className="text-[10px] text-gray-300 tabular-nums font-medium">
+          <span className="text-[10px] text-gray-300 tabular-nums font-medium ml-4 shrink-0">
             {nosotrosLinks.length} secciones
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-x-3 gap-y-2">
+        <div className="grid grid-cols-3 xl:grid-cols-5 gap-x-2 gap-y-2">
           {nosotrosLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
               onClick={onClose}
-              className="group/item flex flex-col gap-1.5 p-2.5 rounded-xl hover:bg-gray-50 transition-colors duration-150"
+              className="group/item flex flex-col gap-1.5 p-2 rounded-xl hover:bg-gray-50 transition-colors duration-150"
             >
-              <span
-                className="w-1.5 h-1.5 rounded-full shrink-0 bg-gray-300 group-hover/item:bg-[#FF0057] transition-colors duration-200 group-hover/item:scale-125"
-              />
+              <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-gray-300 group-hover/item:bg-[#FF0057] transition-colors duration-200 group-hover/item:scale-125" />
               <p className="text-xs font-semibold text-gray-800 leading-snug group-hover/item:text-[#FF0057] transition-colors duration-150">
                 {link.label}
               </p>
@@ -264,12 +262,12 @@ function MegaMenuNosotros({ onClose }: { onClose: () => void }) {
 ───────────────────────────────────────── */
 function MegaMenuIndustrias({ onClose }: { onClose: () => void }) {
   return (
-    <div style={{ minWidth: 920 }}>
+    <div className="w-full" style={{ minWidth: 0 }}>
       <div className="flex gap-0">
 
         {/* Left — dark intro panel */}
         <div
-          className="w-56 shrink-0 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
+          className="w-48 shrink-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden"
           style={{ background: "linear-gradient(150deg, #0A0F1E 0%, #0F172A 60%, #0A1020 100%)" }}
         >
           {/* Radial glow top-right */}
@@ -326,19 +324,19 @@ function MegaMenuIndustrias({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* Right — 5-column sectors grid */}
-        <div className="flex-1 p-5">
+        {/* Right — sectors grid */}
+        <div className="flex-1 p-4 min-w-0">
           <div className="mb-4 flex items-end justify-between">
             <div>
               <p className="text-sm font-bold text-gray-900">Sectores industriales</p>
               <p className="text-xs text-gray-400 mt-0.5">Verticales críticas donde OSC opera end-to-end</p>
             </div>
-            <span className="text-[10px] text-gray-300 tabular-nums font-medium">
+            <span className="text-[10px] text-gray-300 tabular-nums font-medium ml-4 shrink-0">
               {industriasData.sectors.length} sectores
             </span>
           </div>
 
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 xl:grid-cols-5 gap-2">
             {industriasData.sectors.map((sector, i) => {
               const Icon = sector.icon;
               const num = String(i + 1).padStart(2, "0");
@@ -424,7 +422,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
+    const handleResize = () => { if (window.innerWidth >= 1280) setMobileOpen(false); };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -441,7 +439,7 @@ export default function Navbar() {
       {/* Top accent line */}
       <div className="h-[2px] bg-gradient-to-r from-[#FF0057] via-[#0F172A] to-[#FF0057]" />
 
-      <nav className="max-w-7xl mx-auto px-6 flex items-center h-[72px] gap-4">
+      <nav className="max-w-7xl mx-auto px-4 xl:px-6 flex items-center h-[68px] xl:h-[72px] gap-3 xl:gap-4">
         {/* Logo */}
         <Link
           href="/"
@@ -449,11 +447,11 @@ export default function Navbar() {
           aria-label="OSC Top Solutions — Inicio"
           onClick={closeMenu}
         >
-          <Image src="/logo-30anos.png" alt="OSC Top Solutions 30 Años" width={220} height={60} className="h-[46px] w-auto object-contain" priority />
+          <Image src="/logo-30anos.png" alt="OSC Top Solutions 30 Años" width={220} height={60} className="h-[38px] xl:h-[46px] w-auto object-contain" priority />
         </Link>
 
         {/* Desktop Nav — centered */}
-        <ul className="hidden lg:flex items-center gap-0.5 flex-1 justify-center" role="menubar">
+        <ul className="hidden xl:flex items-center gap-0.5 flex-1 justify-center" role="menubar">
 
           {/* 1 · Soluciones y Servicios */}
           <li className="relative" onMouseEnter={() => setOpenMenu("soluciones")} onMouseLeave={closeMenu}>
@@ -470,12 +468,9 @@ export default function Navbar() {
               {openMenu === "soluciones" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.16, ease: "easeOut" }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden"
-                  style={{ marginLeft: "-40px" }}>
-                  <div className="absolute -top-2 left-[calc(50%+40px)] -translate-x-1/2 w-4 h-2 overflow-hidden">
-                    <div className="w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45 translate-y-1.5 mx-auto" />
-                  </div>
-                  <div className="p-5"><MegaMenuSoluciones onClose={closeMenu} /></div>
+                  className="absolute top-full left-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden"
+                  style={{ width: "min(860px, calc(100vw - 2rem))", maxWidth: "calc(100vw - 2rem)" }}>
+                  <div className="p-4"><MegaMenuSoluciones onClose={closeMenu} /></div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -496,11 +491,9 @@ export default function Navbar() {
               {openMenu === "industrias" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.16, ease: "easeOut" }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden">
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-2 overflow-hidden">
-                    <div className="w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45 translate-y-1.5 mx-auto" />
-                  </div>
-                  <div className="p-5"><MegaMenuIndustrias onClose={closeMenu} /></div>
+                  className="absolute top-full left-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden"
+                  style={{ width: "min(820px, calc(100vw - 2rem))", maxWidth: "calc(100vw - 2rem)" }}>
+                  <div className="p-4"><MegaMenuIndustrias onClose={closeMenu} /></div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -537,11 +530,9 @@ export default function Navbar() {
               {openMenu === "nosotros" && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.16, ease: "easeOut" }}
-                  className="absolute top-full right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden">
-                  <div className="absolute -top-2 right-8 w-4 h-2 overflow-hidden">
-                    <div className="w-3 h-3 bg-white border-l border-t border-gray-100 rotate-45 translate-y-1.5 mx-auto" />
-                  </div>
-                  <div className="p-5"><MegaMenuNosotros onClose={closeMenu} /></div>
+                  className="absolute top-full right-0 mt-2 bg-white rounded-2xl border border-gray-100 shadow-2xl shadow-black/10 overflow-hidden"
+                  style={{ width: "min(760px, calc(100vw - 2rem))", maxWidth: "calc(100vw - 2rem)" }}>
+                  <div className="p-4"><MegaMenuNosotros onClose={closeMenu} /></div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -559,7 +550,7 @@ export default function Navbar() {
         </ul>
 
         {/* CTA */}
-        <div className="hidden lg:flex items-center gap-3 shrink-0">
+        <div className="hidden xl:flex items-center gap-3 shrink-0">
           <Link
             href="/contacto"
             className="bg-[#FF0057] hover:bg-[#d4004a] text-white text-sm font-semibold px-5 py-1.5 rounded-full transition-all duration-200 hover:shadow-lg hover:shadow-[#FF0057]/30 w-[130px] inline-flex items-center justify-center gap-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FF0057] whitespace-nowrap"
@@ -580,7 +571,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="lg:hidden text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+          className="xl:hidden ml-auto text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={mobileOpen}
@@ -607,7 +598,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="lg:hidden bg-white border-t border-gray-100 overflow-hidden"
+            className="xl:hidden bg-white border-t border-gray-100 overflow-hidden"
           >
             <div className="px-6 py-4 space-y-1 max-h-[80vh] overflow-y-auto">
 
