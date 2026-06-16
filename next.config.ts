@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   async redirects() {
     return [
       /* ── Legacy slug redirects (Spanish canonical) ── */
@@ -17,6 +18,11 @@ const nextConfig: NextConfig = {
       {
         source: "/soluciones/managed-services",
         destination: "/soluciones/managed-operations",
+        permanent: true,
+      },
+      {
+        source: "/soluciones/cross-protection",
+        destination: "/soluciones/critical-infrastructure-security",
         permanent: true,
       },
     ];
