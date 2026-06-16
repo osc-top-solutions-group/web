@@ -233,7 +233,7 @@ export default function ContactoPage() {
                 <h3 className="text-xl font-bold text-[#0F172A] mb-5">Información de contacto</h3>
                 <div className="space-y-4">
                   {[
-                    { icon: Mail,   label: "Email general", value: "contacto@osctopsolutions.com" },
+                    { icon: Mail,   label: "Email general", value: "comunicaciones@osctopsolutionsgroup.com" },
                     { icon: MapPin, label: "Presencia",     value: "16 países en América Latina y EE.UU." },
                   ].map((item) => (
                     <div key={item.label} className="flex items-start gap-4">
