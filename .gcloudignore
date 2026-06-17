@@ -1,0 +1,15 @@
+# 1. Ignorar carpetas súper pesadas sin importar dónde estén
+**/node_modules/
+**/.next/
+**/.git/
+
+# 2. Ignorar otros archivos innecesarios
+.claude
+.agents
+npm-debug.log
+README.md
+
+# 3. FORZAR la inclusión de archivos vitales (el '!' significa "no ignorar")
+!package.json
+!package-lock.json
+!Dockerfile

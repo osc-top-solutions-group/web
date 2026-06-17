@@ -1,0 +1,17 @@
+# 1. Ignorar carpetas pesadas
+**/node_modules/
+**/.next/
+**/.git/
+
+# 2. Ignorar archivos de configuración de GCP y otros
+.gcloudignore
+.dockerignore
+Dockerfile
+.claude
+.agents
+npm-debug.log
+README.md
+
+# 3. FORZAR la inclusión de archivos vitales
+!package.json
+!package-lock.json

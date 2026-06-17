@@ -1,0 +1,4 @@
+name: redireccion-http-a-https
+defaultUrlRedirect:
+  httpsRedirect: True
+  redirectResponseCode: MOVED_PERMANENTLY_DEFAULT
