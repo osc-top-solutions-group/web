@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -85,6 +86,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`h-full antialiased ${montserrat.variable} ${inter.variable}`}>
+      <head>
+        <Script
+          async
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-WYRMMQVMJZ"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-WYRMMQVMJZ');
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#1A1A1A] text-white font-sans">
         {/* Skip to main content — accessibility */}
         <a href="#main-content" className="skip-link">
