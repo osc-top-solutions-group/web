@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { QRCodeSVG } from "qrcode.react";
 import {
   Linkedin,
   Youtube,
@@ -182,20 +181,12 @@ export default function MauricioRubioVCard() {
 
         {/* QR Code */}
         <div className="bg-white rounded-2xl p-4 shadow-xl">
-          <QRCodeSVG
-            value={VCARD_URL}
-            size={180}
-            bgColor="#ffffff"
-            fgColor="#1a0050"
-            level="H"
-            imageSettings={{
-              src: "/logo-osc.png",
-              x: undefined,
-              y: undefined,
-              height: 36,
-              width: 36,
-              excavate: true,
-            }}
+          <Image
+            src="/qr-mauricio-rubio.svg"
+            alt="QR Mauricio Rubio"
+            width={200}
+            height={200}
+            className="object-contain"
           />
         </div>
 
