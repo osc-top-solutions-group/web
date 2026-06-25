@@ -74,6 +74,7 @@ const territoryManagers = [
   { name: "Mauricio Pardo Bascur",  area: "Territory Manager Chile",                      initials: "MP", photo: "/Fotos Equipo/Mauricio Pardo.png",      linkedin: "https://www.linkedin.com/in/mauricio-pardo-bascur-438ab517/" },
   { name: "Eleonora García",        area: "Territory Manager Colombia",                   initials: "EG", photo: "/Fotos Equipo/Eleonora Garcia.png",     linkedin: "https://www.linkedin.com/in/eleonora-garcia-bautista/" },
   { name: "Erick Pilco",            area: "Territory Manager Perú",                       initials: "EP", photo: "/Fotos Equipo/Erick Pilco.png",         linkedin: "https://www.linkedin.com/in/erick-pilco-mba/" },
+  { name: "Camilo Lozano",          area: "Territory Manager México",                     initials: "CL", photo: "/Fotos Equipo/Camilo Lozano.png",          linkedin: "https://www.linkedin.com/in/camilo-lozano-12300239/" },
 ];
 
 const regionalTeam = [
@@ -82,7 +83,6 @@ const regionalTeam = [
   { name: "Rodrigo Santamaría",   area: "Chief Operations Officer",                             initials: "RS", photo: "/Fotos Equipo/Rodrigo SantaMaria.png",     linkedin: "https://www.linkedin.com/in/rodrigo-santamaria-vanegas-b2716227/" },
   { name: "Luz Ángela Martínez",  area: "Chief Human Resources Officer",                        initials: "LM", photo: "/Fotos Equipo/Luz Angela Martinez.png",    linkedin: "https://www.linkedin.com/in/luz-angela-martinez-prieto-50646a22/" },
   { name: "Freidman Duarte",      area: "Chief Purchasing & Logistics Officer",                 initials: "FD", photo: "/Fotos Equipo/Freidman Duarte.png",        linkedin: "https://www.linkedin.com/in/freidmanduarte/" },
-  { name: "Camilo Lozano",        area: "Global Business Development Manager – Telcos",         initials: "CL", photo: "/Fotos Equipo/Camilo Lozano.png",          linkedin: "https://www.linkedin.com/in/camilo-lozano-12300239/" },
   { name: "Héctor Tamayo",        area: "Global Product Manager",                               initials: "HT", photo: "/Fotos Equipo/Hector Tamayo.png",          linkedin: "https://www.linkedin.com/in/hectortamayogrisales/" },
   { name: "David Rojas",          area: "Global Presales Manager",                              initials: "DR", photo: "/Fotos Equipo/David Rojas.png",             linkedin: "https://www.linkedin.com/in/davidrp88/" },
   { name: "Alexander Ayala",      area: "Global Marketing Manager",                             initials: "AA", photo: "/Fotos Equipo/Alexander Ayala.png",        linkedin: "https://www.linkedin.com/in/ayalaalexander/" },
