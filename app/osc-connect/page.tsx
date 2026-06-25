@@ -109,7 +109,7 @@ export default function OscConnectPage() {
                   <div className="relative px-8 pt-10 pb-8">
                     {/* Subtitle pill */}
                     <span
-                      className="inline-block text-[10px] font-black uppercase tracking-[0.22em] px-3 py-1.5 rounded-full mb-4"
+                      className="inline-block text-[10px] font-black uppercase tracking-[0.12em] px-3 py-1.5 rounded-full mb-4"
                       style={{ background: `${portal.color}10`, color: portal.color, border: `1px solid ${portal.color}20` }}
                     >
                       {portal.subtitle}
