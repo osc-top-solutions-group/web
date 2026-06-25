@@ -129,7 +129,7 @@ export default function MauricioRubioVCard() {
       <div className="w-full max-w-sm flex flex-col items-center gap-6">
 
         {/* Logo */}
-        <Image src="/logo-30anos.png" alt="OSC 30 Años" width={160} height={48} className="object-contain" />
+        <Image src="/logo-footer.png" alt="OSC Top Solutions Group" width={180} height={54} className="object-contain" />
 
         {/* Avatar */}
         <div className="relative">
