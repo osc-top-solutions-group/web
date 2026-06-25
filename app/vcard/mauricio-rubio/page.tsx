@@ -200,30 +200,6 @@ export default function MauricioRubioVCard() {
           />
         </div>
 
-        {/* Share native */}
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 text-white/70 text-sm hover:text-white transition-colors cursor-pointer"
-        >
-          <Share2 size={14} />
-          Comparte este contacto
-        </button>
-
-        {/* Share buttons */}
-        <div className="flex items-center gap-3">
-          {shareOptions.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={s.label}
-              className={`w-11 h-11 rounded-full ${s.bg} flex items-center justify-center text-white hover:opacity-90 transition-all cursor-pointer shadow-md`}
-            >
-              <s.icon size={18} />
-            </a>
-          ))}
-        </div>
 
       </div>
     </div>
