@@ -12,7 +12,7 @@ const portals = [
   {
     icon: Network,
     title: "OSC Nexus",
-    subtitle: "Intranet Corporativa",
+    subtitle: "Intranet Corporativaa",
     description: "Portal interno para colaboradores de OSC. Accede a recursos, comunicados internos, herramientas de gestión y la comunidad OSC.",
     features: [
       "Documentos y políticas corporativas",
