@@ -1,81 +1,81 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
+import { FieldValue } from "firebase-admin/firestore";
+import { envios, MODULOS } from "@/lib/firebase/server";
+import { validateSuscripcion } from "@/lib/forms";
+import { readJson, clientMeta, secretMatches } from "@/lib/request";
 
-// Redis client — se conecta automáticamente via env vars
-// UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN
-function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
-    return null;
-  }
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-}
+/** Código gRPC ALREADY_EXISTS — lo lanza `create()` cuando el documento ya está. */
+const ALREADY_EXISTS = 6;
 
-// POST /api/subscribe — guardar email
+/** Tope de suscriptores que devuelve el GET administrativo. */
+const MAX_LISTADO = 5000;
+
+/**
+ * POST /api/subscribe — alta en `formularios/web_suscriptores/envios/{email}`.
+ *
+ * El correo es el ID del documento, así que `create()` falla si ya existe:
+ * la deduplicación es atómica en una sola escritura, sin la carrera que tiene
+ * un "consultar y luego insertar".
+ */
 export async function POST(req: NextRequest) {
+  const parsed = await readJson(req);
+  if (!parsed.ok) return NextResponse.json({ message: parsed.error }, { status: 400 });
+
+  const valid = validateSuscripcion(parsed.body);
+  if (!valid.ok) return NextResponse.json({ message: "Email inválido" }, { status: 400 });
+
+  const email = valid.value;
+
   try {
-    const { email } = await req.json();
-
-    // Validar email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      return NextResponse.json({ message: "Email inválido" }, { status: 400 });
-    }
-
-    const redis = getRedis();
-    if (!redis) {
-      // Modo sin base de datos: log temporal
-      console.log(`[SUBSCRIBE] Nuevo suscriptor: ${email}`);
-      return NextResponse.json({ message: "Suscrito exitosamente" }, { status: 200 });
-    }
-
-    // Verificar si ya existe
-    const exists = await redis.sismember("osc:subscribers", email);
-    if (exists) {
-      return NextResponse.json({ message: "Este email ya está suscrito" }, { status: 409 });
-    }
-
-    // Guardar en set + hash con metadata
-    await redis.sadd("osc:subscribers", email);
-    await redis.hset(`osc:subscriber:${email}`, {
+    await envios(MODULOS.suscriptores).doc(email).create({
       email,
-      subscribedAt: new Date().toISOString(),
+      estado: "activo",
+      origen: "web-corporativa",
+      createdAt: FieldValue.serverTimestamp(),
+      meta: clientMeta(req),
     });
-
     return NextResponse.json({ message: "Suscrito exitosamente" }, { status: 200 });
   } catch (err) {
-    console.error("[SUBSCRIBE ERROR]", err);
+    if ((err as { code?: number }).code === ALREADY_EXISTS) {
+      return NextResponse.json({ message: "Este email ya está suscrito" }, { status: 409 });
+    }
+    console.error("[subscribe] error al escribir en Firestore:", err);
     return NextResponse.json({ message: "Error interno del servidor" }, { status: 500 });
   }
 }
 
-// GET /api/subscribe — listar todos los suscriptores (solo admin)
+/**
+ * GET /api/subscribe — listado administrativo de suscriptores.
+ *
+ * El secreto va en `Authorization: Bearer <ADMIN_SECRET>`, no en la query
+ * string: los parámetros de URL quedan escritos de forma permanente en los
+ * logs del balanceador y de Cloud Run.
+ */
 export async function GET(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get("secret");
-  if (secret !== process.env.ADMIN_SECRET) {
+  const bearer = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? null;
+
+  if (!process.env.ADMIN_SECRET) {
+    console.error("[subscribe] ADMIN_SECRET no está configurado; se niega el acceso");
+    return NextResponse.json({ message: "No disponible" }, { status: 503 });
+  }
+  if (!secretMatches(bearer, process.env.ADMIN_SECRET)) {
     return NextResponse.json({ message: "No autorizado" }, { status: 401 });
   }
 
-  const redis = getRedis();
-  if (!redis) {
-    return NextResponse.json({ subscribers: [], count: 0 });
+  try {
+    const snap = await envios(MODULOS.suscriptores)
+      .orderBy("createdAt", "desc")
+      .limit(MAX_LISTADO)
+      .get();
+
+    const subscribers = snap.docs.map((d) => {
+      const { email, estado, createdAt } = d.data();
+      return { email, estado, subscribedAt: createdAt?.toDate?.()?.toISOString() ?? null };
+    });
+
+    return NextResponse.json({ subscribers, count: subscribers.length });
+  } catch (err) {
+    console.error("[subscribe] error al leer de Firestore:", err);
+    return NextResponse.json({ message: "Error interno del servidor" }, { status: 500 });
   }
-
-  const emails = (await redis.smembers("osc:subscribers")) as string[];
-
-  const subscribers = await Promise.all(
-    emails.map(async (email) => {
-      const data = await redis.hgetall(`osc:subscriber:${email}`);
-      return data ?? { email };
-    })
-  );
-
-  // Ordenar por fecha de suscripción (más reciente primero)
-  subscribers.sort((a: any, b: any) =>
-    new Date(b.subscribedAt ?? 0).getTime() - new Date(a.subscribedAt ?? 0).getTime()
-  );
-
-  return NextResponse.json({ subscribers, count: subscribers.length });
 }

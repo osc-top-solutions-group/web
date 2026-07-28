@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Reglas de la base (default) de intranet-428417.
+//
+// Deny-all deliberado: ninguna aplicación de OSC accede a Firestore desde el
+// navegador. Todo pasa por un backend en Cloud Run con service account propia,
+// y el Admin SDK omite estas reglas por diseño.
+//
+// Consecuencia práctica: si alguien filtra la configuración de Firebase de un
+// cliente web, no puede leer ni escribir nada.
+//
+// Desplegar con:  firebase deploy --only firestore:rules --project intranet-428417
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
