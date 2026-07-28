@@ -27,7 +27,11 @@ El prefijo `web_` los distingue de los formularios internos de la Intranet, que 
 
 > **Cuidado con `collectionGroup`.** Siete módulos internos usan también una subcolección `envios`. Cualquier consulta `collectionGroup('envios')` en el backend de la Intranet barrerá estos envíos públicos: filtrar por `origen`.
 
-Todo el acceso es **de servidor**. `firestore.rules` deniega el acceso desde cliente; el Admin SDK omite las reglas por diseño y la autorización la hace el Route Handler.
+Todo el acceso es **de servidor**: la autorización la hace el Route Handler, no las reglas de seguridad.
+
+Las reglas de Firestore y de Storage del proyecto están en **deny-all** y se administran en la consola de Firebase, no desde este repositorio. Son **globales por base de datos**, compartidas con la Intranet y `cuentas-estrategicas`, así que un archivo de reglas versionado aquí sería configuración de todo el proyecto viviendo en el repo de una sola aplicación — editarlo y desplegarlo reescribiría las reglas de las demás. Si en algún momento hay que versionarlas, van junto a los demás exports de infraestructura (doc 07 §6), no acá.
+
+Deny-all no limita a esta aplicación: el Admin SDK omite las reglas por diseño. Lo que garantiza es que ningún SDK cliente pueda tocar la base. Hoy ningún desarrollo de OSC usa el SDK cliente — los tres backends usan `firebase-admin`.
 
 ## Endpoints
 
