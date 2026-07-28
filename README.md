@@ -53,7 +53,7 @@ No hay credenciales de base de datos: la identidad la da la service account del 
 
 ## Despliegue
 
-El servicio se despliega **desde fuente** con buildpacks de Cloud Run (no usa el `Dockerfile` del repositorio):
+El servicio se despliega **desde fuente**. Al haber un `Dockerfile` en la raíz, Cloud Build lo usa en lugar de los buildpacks, así que lo que corre en producción es la etapa `runner` de ese Dockerfile (`node server.js` sobre la salida `standalone`):
 
 ```powershell
 gcloud run deploy web-corporativa-service `
@@ -70,4 +70,4 @@ gcloud run services update-traffic web-corporativa-service `
   --to-revisions <REVISION>=100 --region us-central1
 ```
 
-> **Pendiente de limpieza:** el repo trae un `Dockerfile` multi-stage que espera `output: "standalone"`, pero el despliegue real usa buildpacks, que ejecutan `next start` — combinación que Next.js advierte como no soportada con `standalone`. Conviene unificar: o desplegar con el Dockerfile, o quitar `output: "standalone"` de `next.config.ts`. El Dockerfile además construye con `node:20-alpine` y ejecuta con `node:18-alpine`.
+Las tres etapas del Dockerfile usan **Node 22 LTS**. No bajarlo: `firebase-admin` declara `engines.node >= 22` y Next 16 pide `>= 20.9`. La etapa `runner` usaba `node:18-alpine`, incompatible con ambos — un contenedor así arranca bien y falla recién al procesar el primer formulario.
