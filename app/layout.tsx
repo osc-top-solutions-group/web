@@ -86,34 +86,17 @@ export default function RootLayout({
   return (
     <html lang="es" className={`h-full antialiased ${montserrat.variable} ${inter.variable}`}>
       <head>
-        {/* Google Tag Manager */}
+        {/* Google Tag Manager + GA4: archivo externo del propio dominio para
+            evitar scripts inline en la CSP (script-src 'self') */}
         <Script
-          id="google-tag-manager"
+          id="analytics-init"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-WD44GWZQ');`,
-          }}
+          src="/js/analytics-init.js"
         />
         <Script
           async
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-WYRMMQVMJZ"
-        />
-        <Script
-          id="google-analytics"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-WYRMMQVMJZ');
-            `,
-          }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-[#1A1A1A] text-white font-sans">
