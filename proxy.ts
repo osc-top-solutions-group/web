@@ -13,12 +13,19 @@ export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDev = process.env.NODE_ENV === "development";
 
+  // Hashes de los scripts inline del layout (calculados sobre el contenido
+  // exacto emitido en el build — recalcular si esos scripts cambian):
+  //   bootstrap de GTM y config de gtag en app/layout.tsx
+  const GTM_BOOTSTRAP_HASH = "'sha256-LPX1ZdTkH2J8taOTKyCeYChBFIGVCLHUSleB3Fr6dTQ='";
+  const GTAG_CONFIG_HASH = "'sha256-yFIa1TiJ8OcW/CrCX9S1xdfz0k3bjaQn9GXp7uxzWew='";
+
   const csp = [
     "default-src 'self'",
-    // strict-dynamic: los sub-scripts que carga GTM heredan la confianza del
-    // script con nonce; el hostname queda como respaldo para navegadores viejos.
+    // Sin 'strict-dynamic': hacía que el navegador ignorara 'self' y, al no
+    // haber nonce en páginas estáticas, bloqueaba los chunks de Next
+    // (/_next/static/chunks/*). Con allowlist explícita 'self' sí aplica.
     // unsafe-eval solo en dev (React lo usa para reconstruir stacks de error).
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'nonce-${nonce}' ${GTM_BOOTSTRAP_HASH} ${GTAG_CONFIG_HASH} https://www.googletagmanager.com https://www.google-analytics.com${isDev ? " 'unsafe-eval'" : ""}`,
     // Tailwind v4 + framer-motion + estilos inline requieren unsafe-inline
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data: https://images.unsplash.com https://osctopsolutionsgroup.com https://www.telesemana.com https://radartecnologico.com https://itenlinea.com https://imagenes.portafolio.co https://www.acis.org.co https://www.googletagmanager.com https://www.google-analytics.com",
