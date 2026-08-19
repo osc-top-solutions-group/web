@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
       meta: clientMeta(req),
     });
     console.log(`[contacto] envío registrado ${ref.id}`);
+    // La notificación por correo la envía la Cloud Function `notify-web-contacto`
+    // (trigger de Firestore): este servicio público no tiene permisos de Gmail.
     return NextResponse.json({ ok: true });
   } catch (err) {
     // Sin detalles al cliente: el mensaje de Firestore puede revelar rutas y configuración.
