@@ -79,10 +79,7 @@ const territoryManagers = [
 const regionalTeam = [
   { name: "Andrés Gallego",       area: "Chief Commercial & Marketing Officer",                 initials: "AG", photo: "/Fotos Equipo/Andres Gallego.png",         linkedin: "https://www.linkedin.com/in/andr%C3%A9s-gallego-garzon/" },
   { name: "Rafael Rolón",         area: "Chief Financial Officer",                              initials: "RR", photo: "/Fotos Equipo/Rafael Rolon.png",           linkedin: "https://www.linkedin.com/in/rafael-rolon-ramirez-a0354a131/" },
-  { name: "Rodrigo Santamaría",   area: "Chief Operations Officer",                             initials: "RS", photo: "/Fotos Equipo/Rodrigo SantaMaria.png",     linkedin: "https://www.linkedin.com/in/rodrigo-santamaria-vanegas-b2716227/" },
   { name: "Luz Ángela Martínez",  area: "Chief Human Resources Officer",                        initials: "LM", photo: "/Fotos Equipo/Luz Angela Martinez.png",    linkedin: "https://www.linkedin.com/in/luz-angela-martinez-prieto-50646a22/" },
-  { name: "Freidman Duarte",      area: "Chief Purchasing & Logistics Officer",                 initials: "FD", photo: "/Fotos Equipo/Freidman Duarte.png",        linkedin: "https://www.linkedin.com/in/freidmanduarte/" },
-  { name: "Héctor Tamayo",        area: "Global Product Manager",                               initials: "HT", photo: "/Fotos Equipo/Hector Tamayo.png",          linkedin: "https://www.linkedin.com/in/hectortamayogrisales/" },
   { name: "David Rojas",          area: "Global Presales Manager",                              initials: "DR", photo: "/Fotos Equipo/David Rojas.png",             linkedin: "https://www.linkedin.com/in/davidrp88/" },
   { name: "Alexander Ayala",      area: "Global Marketing Manager",                             initials: "AA", photo: "/Fotos Equipo/Alexander Ayala.png",        linkedin: "https://www.linkedin.com/in/ayalaalexander/" },
 ];
@@ -108,7 +105,6 @@ const orgSchema = {
     { "@type": "Person", name: "Angélica D'Haro",    jobTitle: "Chief Business Development and Investment Officer", sameAs: "https://www.linkedin.com/in/ang%C3%A9lica-d%C2%B4haro-42aa9120/" },
     { "@type": "Person", name: "Andrés Gallego",     jobTitle: "Chief Commercial & Marketing Officer",             sameAs: "https://www.linkedin.com/in/andr%C3%A9s-gallego-garzon/" },
     { "@type": "Person", name: "Rafael Rolón",       jobTitle: "Chief Financial Officer",                          sameAs: "https://www.linkedin.com/in/rafael-rolon-ramirez-a0354a131/" },
-    { "@type": "Person", name: "Rodrigo Santamaría", jobTitle: "Chief Operations Officer",                         sameAs: "https://www.linkedin.com/in/rodrigo-santamaria-vanegas-b2716227/" },
   ],
 };
 
