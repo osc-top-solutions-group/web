@@ -86,9 +86,12 @@ const ARTICLES: Record<string, ArticleMeta> = {
   },
 };
 
-export function generateStaticParams() {
-  return Object.keys(ARTICLES).map((slug) => ({ slug }));
-}
+/*
+ * Renderizado dinámico forzado: esta ruta está en el grupo estricto de la CSP
+ * (ver proxy.ts) y Next.js solo inyecta el nonce en páginas dinámicas.
+ * El contenido de WordPress sigue cacheado (fetch con revalidate: 3600).
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }

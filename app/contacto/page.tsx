@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
+import { COUNTRIES } from "@/lib/forms";
 
 const offices = [
   { country: "Colombia",   city: "Bogotá",           address: "Cra. 70 D No. 52-81" },
@@ -15,13 +16,6 @@ const offices = [
   { country: "Chile",      city: "Santiago",         address: "Pedro de Valdivia 555, Of. 406, Providencia" },
   { country: "Costa Rica", city: "San José",         address: "Trans. 24, Plaza Ventura, local # 9" },
   { country: "Ecuador",    city: "Quito",            address: "José Padilla N3-30 y Nuñez de Vela, Ed. Platinium 2do Piso" },
-];
-
-const countries = [
-  "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
-  "Costa Rica", "Ecuador", "El Salvador", "Estados Unidos",
-  "Guatemala", "Honduras", "México", "Nicaragua", "Panamá",
-  "Perú", "Uruguay",
 ];
 
 const inputClass =
@@ -48,10 +42,14 @@ export default function ContactoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error("server error");
+      if (!res.ok) {
+        // El servidor devuelve el detalle en los 400 de validación; en 5xx no hay detalle útil.
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "Ocurrió un error al enviar. Por favor intente nuevamente.");
+      }
       setSent(true);
-    } catch {
-      alert("Ocurrió un error al enviar. Por favor intente nuevamente.");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Ocurrió un error al enviar. Por favor intente nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -182,7 +180,7 @@ export default function ContactoPage() {
                       className={`${inputClass} appearance-none cursor-pointer`}
                     >
                       <option value="" disabled>Seleccione su país</option>
-                      {countries.map((c) => (
+                      {COUNTRIES.map((c) => (
                         <option key={c} value={c}>{c}</option>
                       ))}
                     </select>

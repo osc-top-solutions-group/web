@@ -1,5 +1,5 @@
 # Etapa 1: Dependencias
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 #COPY package.json package-lock.json ./
@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 # Etapa 2: Constructor (Builder)
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -16,7 +16,10 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
 
 # Etapa 3: Producción (Runner)
-FROM node:18-alpine AS runner
+# Node 22 LTS en las tres etapas: es lo que exige firebase-admin (>=22), lo que
+# pide Next 16 (>=20.9) y el estándar del stack (doc 02 §2). Antes esta etapa
+# usaba node:18, incompatible con ambos.
+FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
