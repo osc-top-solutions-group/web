@@ -72,7 +72,6 @@ const territoryManagers = [
   { name: "Walter Castro",          area: "Territory Manager Centro América y El Caribe", initials: "WC", photo: "/Fotos Equipo/Walter Castro.png",       linkedin: "https://www.linkedin.com/in/eng-mba-walter-castro/" },
   { name: "Telmo Paredes",          area: "Territory Manager Ecuador",                    initials: "TP", photo: "/Fotos Equipo/Telmo Paredes.png",       linkedin: "https://www.linkedin.com/in/telmo-paredes-s-8baa66100/" },
   { name: "Mauricio Pardo Bascur",  area: "Territory Manager Chile",                      initials: "MP", photo: "/Fotos Equipo/Mauricio Pardo.png",      linkedin: "https://www.linkedin.com/in/mauricio-pardo-bascur-438ab517/" },
-  { name: "Eleonora García",        area: "Territory Manager Colombia",                   initials: "EG", photo: "/Fotos Equipo/Eleonora Garcia.png",     linkedin: "https://www.linkedin.com/in/eleonora-garcia-bautista/" },
   { name: "Erick Pilco",            area: "Territory Manager Perú",                       initials: "EP", photo: "/Fotos Equipo/Erick Pilco.png",         linkedin: "https://www.linkedin.com/in/erick-pilco-mba/" },
   { name: "Camilo Lozano",          area: "Territory Manager México",                     initials: "CL", photo: "/Fotos Equipo/Camilo Lozano.png",          linkedin: "https://www.linkedin.com/in/camilo-lozano-12300239/" },
 ];
