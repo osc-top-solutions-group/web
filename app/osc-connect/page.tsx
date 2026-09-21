@@ -36,7 +36,7 @@ const portals = [
       "Seguimiento de pagos y facturas",
     ],
     cta: "Portal Proveedores",
-    href: "https://vendors.osctsg.com/auth/login",
+    href: "https://portal-proveedores.osctopsolutionsgroup.com/",
     color: "#0F172A",
   },
   {
