@@ -1,9 +1,19 @@
 /**
  * Central SEO configuration.
- * Update SITE_URL when the production custom domain is set.
+ *
+ * `SITE_URL` alimenta el canonical, `og:url` y todos los `@id` del JSON-LD, así
+ * que el valor por defecto tiene que ser el dominio de producción. Antes era una
+ * URL de Vercel heredada de la migración: como la variable nunca se definió en
+ * Cloud Run, el sitio publicado le declaraba a los buscadores que la versión
+ * canónica de cada página vivía en ese otro dominio.
+ *
+ * `NEXT_PUBLIC_SITE_URL` queda solo para apuntar a otro entorno. Tener presente
+ * que Next.js resuelve las `NEXT_PUBLIC_*` en tiempo de build y estas páginas se
+ * prerenderizan: definirla únicamente como variable de runtime no cambia nada,
+ * tiene que estar presente durante `next build`.
  */
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://osc-web-xi.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://osctopsolutionsgroup.com";
 
 export const ORG_ID      = `${SITE_URL}/#organization`;
 export const WEBSITE_ID  = `${SITE_URL}/#website`;

@@ -3,6 +3,7 @@ import { Montserrat, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import SiteShell from "@/components/layout/SiteShell";
+import { SITE_URL } from "@/lib/seo";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
   ].join(", "),
   authors: [{ name: "OSC Top Solutions Group" }],
   creator: "OSC Top Solutions Group",
-  metadataBase: new URL("https://osc-web-xi.vercel.app"),
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
     languages: { "es-419": "/" },
@@ -54,7 +55,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_419",
     siteName: "OSC Top Solutions Group",
-    url: "https://osc-web-xi.vercel.app",
+    url: SITE_URL,
     images: [
       {
         url: "/banner-1.jpg",
