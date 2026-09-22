@@ -6,9 +6,13 @@ import Footer from "./Footer";
 
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isVCard = pathname?.startsWith("/vcard");
+  // Rutas que traen su propio encabezado y pie. La landing de captación va acá
+  // a propósito: la navegación completa del sitio le daría al visitante diez
+  // salidas en lugar de un formulario.
+  const standalone =
+    pathname?.startsWith("/vcard") || pathname?.startsWith("/frente-critico");
 
-  if (isVCard) {
+  if (standalone) {
     return <>{children}</>;
   }
 

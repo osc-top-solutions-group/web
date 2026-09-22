@@ -15,6 +15,18 @@ export const COUNTRIES = [
   "Perú", "Uruguay",
 ] as const;
 
+/**
+ * Verticales atendidas. Igual que `COUNTRIES`, es la fuente de verdad: la usa
+ * el <select> de la landing y la valida el servidor.
+ */
+export const SECTORES = [
+  "Power & Utilities", "Energía y Minería", "Puertos y Logística",
+  "Gobierno y Seguridad Ciudadana", "Telecomunicaciones", "Otro",
+] as const;
+
+/** Ventana de atención que declara el lead. Ordena la cola de respuesta. */
+export const HORIZONTES = ["30 días", "90 días", "6 meses"] as const;
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Tope de longitud por campo. `email` usa el máximo de la RFC 5321. */
@@ -25,6 +37,7 @@ const MAX = {
   email: 254,
   telefono: 40,
   mensaje: 4000,
+  prioridad: 4000,
 } as const;
 
 export type Validated<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -129,4 +142,84 @@ export function validateContacto(body: unknown): Validated<ContactoInput> {
 export function validateSuscripcion(body: unknown): Validated<string> {
   if (!body || typeof body !== "object") return { ok: false, error: "Cuerpo de la petición inválido" };
   return email((body as Record<string, unknown>).email);
+}
+
+export interface FrenteCriticoInput {
+  nombre: string;
+  empresa: string;
+  cargo: string | null;
+  email: string;
+  telefono: string | null;
+  pais: string;
+  sector: string;
+  horizonte: string;
+  prioridad: string;
+}
+
+/**
+ * Valida el cuerpo de `POST /api/frente-critico`.
+ *
+ * No reutiliza `validateContacto` a propósito: `sector` y `horizonte` son los
+ * campos que deciden a quién se deriva el lead y con qué urgencia, así que
+ * viajan como campos propios y validados contra listas cerradas. Meterlos
+ * dentro de `mensaje` los convertiría en texto libre, imposible de filtrar.
+ *
+ * Igual que con `pais`: las listas están en NFC en el fuente y `text()`
+ * normaliza la entrada, así que la comparación exacta es segura pese a los
+ * acentos de "Energía y Minería" y "30 días".
+ */
+export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInput> {
+  if (!body || typeof body !== "object") return { ok: false, error: "Cuerpo de la petición inválido" };
+  const b = body as Record<string, unknown>;
+
+  const nombre = required(b.nombre, "nombre", MAX.nombre);
+  if (!nombre.ok) return nombre;
+
+  const empresa = required(b.empresa, "empresa", MAX.empresa);
+  if (!empresa.ok) return empresa;
+
+  const cargo = optional(b.cargo, "cargo", MAX.rol);
+  if (!cargo.ok) return cargo;
+
+  const mail = email(b.email);
+  if (!mail.ok) return mail;
+
+  const telefono = optional(b.telefono, "telefono", MAX.telefono);
+  if (!telefono.ok) return telefono;
+
+  const prioridad = required(b.prioridad, "prioridad", MAX.prioridad);
+  if (!prioridad.ok) return prioridad;
+
+  const pais = text(b.pais);
+  if (!pais) return { ok: false, error: 'El campo "pais" es obligatorio' };
+  if (!(COUNTRIES as readonly string[]).includes(pais)) {
+    return { ok: false, error: "El país seleccionado no es válido" };
+  }
+
+  const sector = text(b.sector);
+  if (!sector) return { ok: false, error: 'El campo "sector" es obligatorio' };
+  if (!(SECTORES as readonly string[]).includes(sector)) {
+    return { ok: false, error: "El sector seleccionado no es válido" };
+  }
+
+  const horizonte = text(b.horizonte);
+  if (!horizonte) return { ok: false, error: 'El campo "horizonte" es obligatorio' };
+  if (!(HORIZONTES as readonly string[]).includes(horizonte)) {
+    return { ok: false, error: "El horizonte seleccionado no es válido" };
+  }
+
+  return {
+    ok: true,
+    value: {
+      nombre: nombre.value,
+      empresa: empresa.value,
+      cargo: cargo.value,
+      email: mail.value,
+      telefono: telefono.value,
+      pais,
+      sector,
+      horizonte,
+      prioridad: prioridad.value,
+    },
+  };
 }

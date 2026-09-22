@@ -23,6 +23,7 @@ export const FORMULARIOS = "formularios";
 export const MODULOS = {
   contacto: "web_contacto",
   suscriptores: "web_suscriptores",
+  frenteCritico: "web_frente_critico",
 } as const;
 
 function app(): App {
