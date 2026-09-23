@@ -137,7 +137,7 @@ export default function MauricioRubioVCard() {
             style={{ background: "linear-gradient(135deg, #ff3c7a, #000086)" }}>
             <div className="w-full h-full rounded-full overflow-hidden bg-white">
               <Image
-                src="/Fotos Equipo/Mauricio Rubio.png"
+                src="/vcard-mauricio-rubio.webp"
                 alt="Mauricio Rubio"
                 width={144}
                 height={144}
