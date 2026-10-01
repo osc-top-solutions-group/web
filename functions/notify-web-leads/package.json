@@ -1,8 +1,8 @@
 {
-  "name": "notify-web-contacto",
-  "version": "1.0.0",
+  "name": "notify-web-leads",
+  "version": "2.0.0",
   "private": true,
-  "description": "Notifica por Gmail cada lead nuevo de formularios/web_contacto/envios (trigger Firestore)",
+  "description": "Notifica por Gmail cada lead nuevo de los formularios de la web pública (triggers Firestore + barrido de pendientes)",
   "main": "index.js",
   "engines": {
     "node": ">=22"

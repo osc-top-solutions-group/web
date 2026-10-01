@@ -54,22 +54,44 @@ function text(raw: unknown): string | null {
   return typeof raw === "string" ? raw.normalize("NFC").trim() : null;
 }
 
-function required(raw: unknown, campo: string, max: number): Validated<string> {
+/**
+ * Caracteres de control ASCII (incluye CR y LF) salvo el tab. Un salto de
+ * línea en un campo de una sola línea nunca es legítimo y sí es el vector
+ * clásico de inyección de cabeceras de correo: `nombre` y `empresa` viajan al
+ * `Subject` de la notificación y `email` al `Reply-To`.
+ */
+const CONTROL_RE = /[\x00-\x08\x0A-\x1F\x7F]+/g;
+/** Igual que CONTROL_RE pero conserva CR/LF: para los campos de texto largo. */
+const CONTROL_MULTILINE_RE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]+/g;
+
+/** Campo de una línea: colapsa cualquier control (incl. saltos) a un espacio. */
+function line(raw: unknown): string | null {
   const v = text(raw);
+  return v === null ? null : v.replace(CONTROL_RE, " ").replace(/ {2,}/g, " ").trim();
+}
+
+/** Campo de párrafo: conserva saltos de línea, elimina el resto de controles. */
+function paragraph(raw: unknown): string | null {
+  const v = text(raw);
+  return v === null ? null : v.replace(CONTROL_MULTILINE_RE, "").trim();
+}
+
+function required(raw: unknown, campo: string, max: number, multiline = false): Validated<string> {
+  const v = multiline ? paragraph(raw) : line(raw);
   if (!v) return { ok: false, error: `El campo "${campo}" es obligatorio` };
   if (v.length > max) return { ok: false, error: `El campo "${campo}" excede ${max} caracteres` };
   return { ok: true, value: v };
 }
 
-function optional(raw: unknown, campo: string, max: number): Validated<string | null> {
-  const v = text(raw);
+function optional(raw: unknown, campo: string, max: number, multiline = false): Validated<string | null> {
+  const v = multiline ? paragraph(raw) : line(raw);
   if (!v) return { ok: true, value: null };
   if (v.length > max) return { ok: false, error: `El campo "${campo}" excede ${max} caracteres` };
   return { ok: true, value: v };
 }
 
 function email(raw: unknown): Validated<string> {
-  const v = text(raw)?.toLowerCase();
+  const v = line(raw)?.toLowerCase();
   if (!v) return { ok: false, error: 'El campo "email" es obligatorio' };
   if (v.length > MAX.email) return { ok: false, error: "El correo excede la longitud permitida" };
   if (!EMAIL_RE.test(v)) return { ok: false, error: "El correo no tiene un formato válido" };
@@ -113,7 +135,7 @@ export function validateContacto(body: unknown): Validated<ContactoInput> {
   const telefono = optional(b.telefono, "telefono", MAX.telefono);
   if (!telefono.ok) return telefono;
 
-  const mensaje = optional(b.mensaje, "mensaje", MAX.mensaje);
+  const mensaje = optional(b.mensaje, "mensaje", MAX.mensaje, true);
   if (!mensaje.ok) return mensaje;
 
   // COUNTRIES está en NFC en el fuente y `text()` normaliza la entrada, así que
@@ -154,6 +176,8 @@ export interface FrenteCriticoInput {
   sector: string;
   horizonte: string;
   prioridad: string;
+  /** Evidencia de la autorización de contacto (Ley 1581 / Habeas Data). Siempre `true` si el envío es válido. */
+  consentimiento: true;
 }
 
 /**
@@ -187,7 +211,7 @@ export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInp
   const telefono = optional(b.telefono, "telefono", MAX.telefono);
   if (!telefono.ok) return telefono;
 
-  const prioridad = required(b.prioridad, "prioridad", MAX.prioridad);
+  const prioridad = required(b.prioridad, "prioridad", MAX.prioridad, true);
   if (!prioridad.ok) return prioridad;
 
   const pais = text(b.pais);
@@ -208,6 +232,12 @@ export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInp
     return { ok: false, error: "El horizonte seleccionado no es válido" };
   }
 
+  // El checkbox es obligatorio en el cliente, pero la evidencia legal de la
+  // autorización se guarda en el servidor: solo se acepta el booleano `true`.
+  if (b.consentimiento !== true) {
+    return { ok: false, error: "Necesitamos su autorización para poder contactarle" };
+  }
+
   return {
     ok: true,
     value: {
@@ -220,6 +250,54 @@ export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInp
       sector,
       horizonte,
       prioridad: prioridad.value,
+      consentimiento: true,
     },
   };
+}
+
+/* ── Anti-bots ─────────────────────────────────────────────────────────── */
+
+/**
+ * Nombre del campo honeypot. Los formularios lo renderizan oculto (fuera del
+ * flujo visual y del orden de tabulación); un humano nunca lo llena, un bot
+ * que rellena todo lo que parece un input sí. Se llama `website` a propósito:
+ * es el nombre genérico que más suelen completar los bots.
+ */
+export const HONEYPOT_FIELD = "website";
+
+/** Tiempo mínimo entre que el formulario se muestra y se envía. Nadie llena 7+ campos en menos. */
+const MIN_FILL_MS = 3_000;
+/** Un `iniciadoEn` más viejo que esto ya no es una sesión de formulario creíble (o es un replay). */
+const MAX_FILL_MS = 12 * 60 * 60 * 1000;
+
+export type Antibot = { bot: false } | { bot: true; motivo: string };
+
+/**
+ * Heurísticas anti-bots sin fricción para el usuario. Se aplican ANTES de la
+ * validación de campos y no revelan nada al cliente: el handler responde el
+ * mismo `{ ok: true }` que a un envío legítimo, pero no guarda ni notifica.
+ *
+ *   · honeypot: cualquier valor no vacío en `website` es un bot.
+ *   · tiempo de llenado: `iniciadoEn` (epoch ms que fija el cliente al montar
+ *     el formulario) debe estar entre MIN_FILL_MS y MAX_FILL_MS en el pasado.
+ *     Un bot que hace POST directo sin cargar la página no lo envía o lo
+ *     inventa; los que sí lo envían correctamente quedan para el rate limit
+ *     del balanceador.
+ */
+export function detectBot(body: unknown, now = Date.now()): Antibot {
+  if (!body || typeof body !== "object") return { bot: false };
+  const b = body as Record<string, unknown>;
+
+  const hp = b[HONEYPOT_FIELD];
+  if (typeof hp === "string" ? hp.trim() !== "" : hp !== undefined && hp !== null) {
+    return { bot: true, motivo: "honeypot" };
+  }
+
+  const iniciadoEn = typeof b.iniciadoEn === "number" ? b.iniciadoEn : Number(b.iniciadoEn);
+  if (!Number.isFinite(iniciadoEn)) return { bot: true, motivo: "sin-iniciadoEn" };
+  const elapsed = now - iniciadoEn;
+  if (elapsed < MIN_FILL_MS) return { bot: true, motivo: `llenado-en-${Math.max(0, elapsed)}ms` };
+  if (elapsed > MAX_FILL_MS) return { bot: true, motivo: "iniciadoEn-vencido" };
+
+  return { bot: false };
 }

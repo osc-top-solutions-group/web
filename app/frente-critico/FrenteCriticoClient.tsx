@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Clock, MessageSquare, ShieldCheck, FileText, BarChart3, Send, Check, AlertCircle } from "lucide-react";
-import { COUNTRIES, SECTORES, HORIZONTES } from "@/lib/forms";
+import { COUNTRIES, SECTORES, HORIZONTES, HONEYPOT_FIELD } from "@/lib/forms";
 import styles from "./page.module.css";
 
 /**
@@ -45,6 +45,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function FrenteCriticoClient() {
   const [form, setForm] = useState(VACIO);
   const [consent, setConsent] = useState(false);
+  // Anti-bots (ver `detectBot` en lib/forms.ts): honeypot que un humano nunca
+  // ve, y el instante en que se montó el formulario para medir el tiempo de llenado.
+  const [honeypot, setHoneypot] = useState("");
+  const [iniciadoEn] = useState(() => Date.now());
   const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({});
   const [fallidos, setFallidos] = useState<typeof REGLAS>([]);
   const [enviando, setEnviando] = useState(false);
@@ -125,6 +129,9 @@ export default function FrenteCriticoClient() {
           sector: form.sector,
           horizonte: form.horizonte,
           prioridad: form.prioridad,
+          consentimiento: consent,
+          [HONEYPOT_FIELD]: honeypot,
+          iniciadoEn,
         }),
       });
       if (!res.ok) {
@@ -402,6 +409,16 @@ export default function FrenteCriticoClient() {
                         </label>
                         <Error_ campo="consent" />
                       </div>
+                    </div>
+
+                    {/* Honeypot: fuera de pantalla, sin tab, sin autocompletar. Los humanos no lo ven. */}
+                    <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+                      <label htmlFor="fc-website">Sitio web</label>
+                      <input
+                        id="fc-website" name={HONEYPOT_FIELD} type="text"
+                        tabIndex={-1} autoComplete="off"
+                        value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
+                      />
                     </div>
 
                     <div className={styles.submitRow}>

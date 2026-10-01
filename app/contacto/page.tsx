@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
-import { COUNTRIES } from "@/lib/forms";
+import { COUNTRIES, HONEYPOT_FIELD } from "@/lib/forms";
 
 const offices = [
   { country: "Colombia",   city: "Bogotá",           address: "Cra. 70 D No. 52-81" },
@@ -28,6 +28,10 @@ export default function ContactoPage() {
     nombre: "", empresa: "", rol: "", email: "",
     telefono: "", pais: "", mensaje: "",
   });
+  // Anti-bots (ver `detectBot` en lib/forms.ts): honeypot que un humano nunca
+  // ve, y el instante en que se montó el formulario para medir el tiempo de llenado.
+  const [honeypot, setHoneypot] = useState("");
+  const [iniciadoEn] = useState(() => Date.now());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -40,7 +44,7 @@ export default function ContactoPage() {
       const res = await fetch("/api/contacto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, [HONEYPOT_FIELD]: honeypot, iniciadoEn }),
       });
       if (!res.ok) {
         // El servidor devuelve el detalle en los 400 de validación; en 5xx no hay detalle útil.
@@ -197,6 +201,16 @@ export default function ContactoPage() {
                       placeholder="Cuéntenos sobre su infraestructura y los desafíos que enfrenta..."
                       rows={4}
                       className={`${inputClass} resize-none`}
+                    />
+                  </div>
+
+                  {/* Honeypot: fuera de pantalla, sin tab, sin autocompletar. Los humanos no lo ven. */}
+                  <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+                    <label htmlFor="contacto-website">Sitio web</label>
+                    <input
+                      id="contacto-website" name={HONEYPOT_FIELD} type="text"
+                      tabIndex={-1} autoComplete="off"
+                      value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
                     />
                   </div>
 
