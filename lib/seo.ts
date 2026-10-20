@@ -10,10 +10,12 @@
  * `NEXT_PUBLIC_SITE_URL` queda solo para apuntar a otro entorno. Tener presente
  * que Next.js resuelve las `NEXT_PUBLIC_*` en tiempo de build y estas páginas se
  * prerenderizan: definirla únicamente como variable de runtime no cambia nada,
- * tiene que estar presente durante `next build`.
+ * tiene que estar presente durante `next build`. El Dockerfile la recibe como
+ * build-arg SITE_URL (QA: https://web-qa.osctopsolutionsgroup.com); vacía o
+ * ausente cae al dominio de producción (por eso `||` y no `??`).
  */
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://osctopsolutionsgroup.com";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://osctopsolutionsgroup.com";
 
 export const ORG_ID      = `${SITE_URL}/#organization`;
 export const WEBSITE_ID  = `${SITE_URL}/#website`;

@@ -28,6 +28,8 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    // El reenvío de /agente-api/* al orquestador del asistente vive en proxy.ts
+    // (tiempo de ejecución, variable AGENTE_API_ORIGIN), no aquí.
     return [
       /* ── Internal rewrites so public SEO slugs resolve to file slugs ── */
       {

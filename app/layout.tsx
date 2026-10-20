@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import SiteShell from "@/components/layout/SiteShell";
 import { SITE_URL } from "@/lib/seo";
+import { ENTORNO, ES_PRODUCCION } from "@/lib/entorno";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -72,11 +73,14 @@ export const metadata: Metadata = {
       "Conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443.",
     images: ["/banner-1.jpg"],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
+  // QA no se indexa (además de la cabecera X-Robots-Tag que pone proxy.ts).
+  robots: ES_PRODUCCION
+    ? {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-image-preview": "large" },
+      }
+    : { index: false, follow: false },
 };
 
 export default function RootLayout({
@@ -88,28 +92,38 @@ export default function RootLayout({
     <html lang="es" className={`h-full antialiased ${montserrat.variable} ${inter.variable}`}>
       <head>
         {/* Google Tag Manager + GA4: archivo externo del propio dominio para
-            evitar scripts inline en la CSP (script-src 'self') */}
-        <Script
-          id="analytics-init"
-          strategy="afterInteractive"
-          src="/js/analytics-init.js"
-        />
-        <Script
-          async
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-WYRMMQVMJZ"
-        />
+            evitar scripts inline en la CSP (script-src 'self').
+            Solo en producción: las visitas de QA no deben contaminar la analítica. */}
+        {ES_PRODUCCION && (
+          <>
+            <Script
+              id="analytics-init"
+              strategy="afterInteractive"
+              src="/js/analytics-init.js"
+            />
+            <Script
+              async
+              strategy="afterInteractive"
+              src="https://www.googletagmanager.com/gtag/js?id=G-WYRMMQVMJZ"
+            />
+          </>
+        )}
       </head>
-      <body className="min-h-full flex flex-col bg-[#1A1A1A] text-white font-sans">
+      <body
+        className="min-h-full flex flex-col bg-[#1A1A1A] text-white font-sans"
+        data-entorno={ENTORNO}
+      >
         {/* Google Tag Manager (noscript) */}
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-WD44GWZQ"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
+        {ES_PRODUCCION && (
+          <noscript>
+            <iframe
+              src="https://www.googletagmanager.com/ns.html?id=GTM-WD44GWZQ"
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

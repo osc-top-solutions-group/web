@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ES_PRODUCCION } from "@/lib/entorno";
 
 const REPORT_ENDPOINT = "/api/csp-report";
 
@@ -83,7 +84,26 @@ function buildCsp(scriptSrc: string): string {
   ].join("; ");
 }
 
+/*
+ * Asistente virtual: el widget llama a /agente-api/* por ruta relativa y aquí,
+ * en tiempo de ejecución, se reenvía al orquestador (proyecto GCP
+ * agente-ai-511121). Se hace en el proxy y no en `rewrites()` de next.config
+ * porque aquello se resuelve en el build y la URL del orquestador debe poder
+ * cambiarse con una variable de entorno del servicio (AGENTE_API_ORIGIN) sin
+ * reconstruir la imagen. El navegador nunca sale del origen: sin CORS ni CSP.
+ */
+const AGENTE_API_PREFIX = "/agente-api/";
+
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith(AGENTE_API_PREFIX)) {
+    const origin = (process.env.AGENTE_API_ORIGIN ?? "").replace(/\/+$/, "");
+    if (!origin) {
+      return NextResponse.json({ error: "Asistente no disponible" }, { status: 503 });
+    }
+    const destino = new URL(request.nextUrl.pathname + request.nextUrl.search, origin);
+    return NextResponse.rewrite(destino);
+  }
+
   const isDev = process.env.NODE_ENV === "development";
   const devEval = isDev ? " 'unsafe-eval'" : "";
   const analyticsHosts =
@@ -108,6 +128,9 @@ export function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy-Report-Only", csp);
   response.headers.set("Reporting-Endpoints", `csp-endpoint="${REPORT_ENDPOINT}"`);
+  // QA: que ningún buscador indexe web-qa.* aunque IAP se desactive algún día.
+  // Cabecera en runtime: cubre también estáticos y rutas que no leen metadata.
+  if (!ES_PRODUCCION) response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
 
   return response;
 }

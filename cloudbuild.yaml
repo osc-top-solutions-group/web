@@ -1,0 +1,32 @@
+# Construcción de la imagen de la web corporativa, una por entorno.
+# La invoca deploy.ps1 (QA y despliegues manuales de prod). El disparador de
+# Cloud Build que publica producción al hacer push a main NO usa este archivo:
+# construye el Dockerfile sin build-args, cuyos valores por defecto son los de
+# producción.
+#
+#   gcloud builds submit --config cloudbuild.yaml --project intranet-428417 \
+#     --substitutions _IMAGEN=...,_ENTORNO=qa,_SITE_URL=https://web-qa.osctopsolutionsgroup.com,_AGENTE_HABILITADO=1
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --build-arg
+      - ENTORNO=${_ENTORNO}
+      - --build-arg
+      - SITE_URL=${_SITE_URL}
+      - --build-arg
+      - AGENTE_HABILITADO=${_AGENTE_HABILITADO}
+      - -t
+      - ${_IMAGEN}
+      - -f
+      - Dockerfile
+      - .
+images:
+  - ${_IMAGEN}
+substitutions:
+  _ENTORNO: prod
+  _SITE_URL: ""
+  _AGENTE_HABILITADO: "0"
+  _IMAGEN: us-central1-docker.pkg.dev/intranet-428417/cloud-run-source-deploy/web-corporativa-service:manual
+options:
+  logging: CLOUD_LOGGING_ONLY

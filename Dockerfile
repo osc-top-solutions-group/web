@@ -13,6 +13,17 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Deshabilita la telemetría de Next.js
 ENV NEXT_TELEMETRY_DISABLED 1
+# Entorno horneado en la imagen (ver lib/entorno.ts). Los valores por defecto
+# son los de PRODUCCIÓN: el disparador de Cloud Build de main no pasa build-args.
+# QA se construye con deploy.ps1 -Entorno qa (cloudbuild.yaml), que fija:
+#   ENTORNO=qa, SITE_URL=https://web-qa.osctopsolutionsgroup.com, AGENTE_HABILITADO=1
+# Las NEXT_PUBLIC_* se resuelven en `next build`: por eso van aquí y no en Cloud Run.
+ARG ENTORNO=prod
+ARG SITE_URL=""
+ARG AGENTE_HABILITADO=0
+ENV NEXT_PUBLIC_ENTORNO=$ENTORNO
+ENV NEXT_PUBLIC_SITE_URL=$SITE_URL
+ENV NEXT_PUBLIC_AGENTE_HABILITADO=$AGENTE_HABILITADO
 RUN npm run build
 
 # Etapa 3: Producción (Runner)
@@ -23,6 +34,9 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+# Mismo entorno que el builder, por si algún módulo del servidor lo lee en runtime.
+ARG ENTORNO=prod
+ENV NEXT_PUBLIC_ENTORNO=$ENTORNO
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

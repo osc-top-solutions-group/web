@@ -86,11 +86,74 @@ La función corre con `sa-notificaciones-web@` (roles: `datastore.user`, `eventa
 | Variable | Requerida | Notas |
 |----------|-----------|-------|
 | `GOOGLE_CLOUD_PROJECT` | No | Por defecto `intranet-428417`. En Cloud Run se detecta solo |
-| `ADMIN_SECRET` | Solo para `GET /api/subscribe` | Sin ella el endpoint responde 503 |
+| `ADMIN_SECRET` | Solo para `GET /api/subscribe` | Sin ella el endpoint responde 503. Secreto `web-corporativa-admin-secret[-qa]` |
+| `AGENTE_API_ORIGIN` | Solo si el widget del asistente está activo | Origen del orquestador al que `proxy.ts` reenvía `/agente-api/*` en runtime (`https://agente[-qa].osctopsolutionsgroup.com`). Vacía: el widget recibe 503 |
+
+Y tres que **no son de runtime** sino de construcción (`ARG` del `Dockerfile`, resueltas en `next build`; ver § Ambientes):
+
+| Build-arg | Por defecto | Qué fija |
+|-----------|-------------|----------|
+| `ENTORNO` | `prod` | `NEXT_PUBLIC_ENTORNO`: módulos de Firestore `web_*_qa`, sin GTM/GA4, `noindex` |
+| `SITE_URL` | vacío = `https://osctopsolutionsgroup.com` | `NEXT_PUBLIC_SITE_URL`: canonical, `og:url`, sitemap |
+| `AGENTE_HABILITADO` | `0` | `NEXT_PUBLIC_AGENTE_HABILITADO`: muestra el botón flotante del asistente |
 
 No hay credenciales de base de datos: la identidad la da la service account del servicio.
 
-## Despliegue
+## Ambientes y despliegue
+
+Dos ambientes sobre el mismo proyecto `intranet-428417` y el mismo balanceador compartido (`intranet-url-map`), con el patrón de la Arquitectura de Desarrollos In House que ya usan `esm-qa`, `portal-proveedores-qa`, `constructor-qa` y `sgc-qa`: cada recurso de pruebas lleva el sufijo `-qa` y su propio subdominio.
+
+| | QA (pruebas) | Producción |
+|---|---|---|
+| URL | `https://web-qa.osctopsolutionsgroup.com` (IAP: grupo `aplicaciones-qa-osc@`) | `https://osctopsolutionsgroup.com` (pública) |
+| Cloud Run | `web-corporativa-service-qa` (máx. 3 instancias) | `web-corporativa-service` |
+| NEG / backend service | `web-corporativa-neg-qa` / `web-corporativa-backend-qa` | `web-corporativa-neg` / `web-corporativa-backend` |
+| Path matcher | `web-corporativa-matcher-qa` | `web-corporativa-matcher` |
+| Imagen | `cloud-run-source-deploy/web-corporativa-service-qa:<sha>-qa` | la que construye el disparador de Cloud Build |
+| Firestore | misma base `(default)`, módulos `web_contacto_qa`, `web_suscriptores_qa`, `web_frente_critico_qa` | `web_contacto`, `web_suscriptores`, `web_frente_critico` |
+| Correo de leads | **no sale**: las funciones `notify-web-*` y el barrido solo escuchan los módulos de producción | sí |
+| Analítica (GTM/GA4) | no se carga | sí |
+| Indexación | `noindex` (metadata + `X-Robots-Tag` + `robots.txt` cerrado) | sí |
+| Asistente virtual | widget visible, `AGENTE_API_ORIGIN=https://agente-qa.osctopsolutionsgroup.com` | widget oculto hasta activar `AGENTE_HABILITADO=1` en el disparador |
+| Secreto `ADMIN_SECRET` | `web-corporativa-admin-secret-qa` | `web-corporativa-admin-secret` |
+| Despliegue | `.\deploy.ps1 -Entorno qa`, desde cualquier rama | push a `main` (disparador) o `.\deploy.ps1 -Entorno prod` solo desde `main` con el árbol limpio |
+
+Las service accounts (`sa-web-corporativa@`, `sa-notificaciones-web@`) son las mismas en ambos ambientes. TLS lo cubre el comodín `*.osctopsolutionsgroup.com` de Certificate Manager (`osc-cert-map`), así que un subdominio nuevo no necesita certificado; el DNS vive en GoDaddy y se crea a mano.
+
+**Por qué el entorno va horneado en la imagen.** Las `NEXT_PUBLIC_*` se resuelven en `next build` y las páginas de marketing se prerenderizan, así que no hay forma de que una sola imagen sirva QA y producción cambiando variables de Cloud Run. `deploy.ps1` construye con `cloudbuild.yaml` pasando `ENTORNO`, `SITE_URL` y `AGENTE_HABILITADO` como build-args y etiqueta la imagen `<sha>-<entorno>`. El disparador de Cloud Build de `main` no pasa build-args: los valores por defecto del `Dockerfile` son los de producción, así que producción no cambia. Todo lo que depende del entorno en el código sale de `lib/entorno.ts`; lo único de runtime es `AGENTE_API_ORIGIN` (`proxy.ts`), que se puede cambiar sin reconstruir.
+
+### Levantar QA por primera vez
+
+```powershell
+.\deploy.ps1 -Entorno qa                 # imagen + servicio + secreto (crea web-corporativa-admin-secret-qa)
+.\infra\aprovisionar-qa.ps1              # NEG, backend service con IAP, host en intranet-url-map, miembros IAP
+# GoDaddy: CNAME web-qa → osctopsolutionsgroup.com (lo imprime el script). Esperar propagación.
+```
+
+Si el grupo `aplicaciones-qa-osc@` aún no existe en Workspace, pasar personas: `.\infra\aprovisionar-qa.ps1 -MiembrosIap "user:a@osctopsolutionsgroup.com","user:b@..."`.
+
+### Probar el asistente virtual en QA
+
+1. En el repo del agente (`Agente AI - ChatBot`): `.\infra\aprovisionar.ps1 -Entorno qa` y `.\deploy-backend.ps1 -Entorno qa`, más su balanceador y el DNS `agente-qa`. Hasta que `https://agente-qa.osctopsolutionsgroup.com/agente-api/health` responda, el widget de QA mostrará "Asistente no disponible" (503 de `proxy.ts`).
+2. `.\deploy.ps1 -Entorno qa` (el origen por defecto ya es `agente-qa`). Para apuntar a otro origen: `-AgenteOrigen https://...`; para ocultar el widget: `-SinAgente`.
+3. Abrir `https://web-qa.osctopsolutionsgroup.com` con la cuenta de OSC. El navegador habla con `/agente-api/chat` en el mismo origen; la cookie de IAP acompaña la petición y `proxy.ts` la reenvía al orquestador.
+
+Para pasar el asistente a producción: publicar el orquestador de prod, fijar `AGENTE_API_ORIGIN=https://agente.osctopsolutionsgroup.com` en `web-corporativa-service` y añadir `--build-arg AGENTE_HABILITADO=1` al paso `docker build` del disparador de Cloud Build (o desplegar con `.\deploy.ps1 -Entorno prod`, que ya lo pasa).
+
+### Probar la notificación de leads en QA
+
+Por diseño un envío en QA no manda correo. Si hace falta probar la Cloud Function, desplegarla una vez contra el módulo de pruebas y borrarla al terminar:
+
+```powershell
+# en functions/notify-web-leads/deploy.ps1 la función Deploy-Trigger recibe el módulo:
+# Deploy-Trigger "notify-web-contacto-qa" "web_contacto_qa"   (con NOTIFY_TO a un buzón de pruebas)
+```
+
+### Limpieza de QA
+
+Los documentos de `formularios/web_*_qa/envios` se pueden borrar sin riesgo desde la consola. Para apagar el ambiente sin destruirlo: quitar el host del URL map (`gcloud compute url-maps remove-path-matcher intranet-url-map --path-matcher-name web-corporativa-matcher-qa`) y bajar `--max-instances` a 0 o borrar el servicio.
+
+## Despliegue de producción
 
 El servicio se despliega **desde fuente**. Al haber un `Dockerfile` en la raíz, Cloud Build lo usa en lugar de los buildpacks, así que lo que corre en producción es la etapa `runner` de ese Dockerfile (`node server.js` sobre la salida `standalone`):
 

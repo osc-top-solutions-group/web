@@ -15,3 +15,8 @@ README.md
 # 3. FORZAR la inclusión de archivos vitales
 !package.json
 !package-lock.json
+# Despliegue e infraestructura: no van dentro de la imagen
+infra/
+functions/
+*.ps1
+cloudbuild.yaml

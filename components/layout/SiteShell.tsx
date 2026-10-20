@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import ChatWidget from "@/components/agente/ChatWidget";
+import { AGENTE_HABILITADO } from "@/lib/entorno";
 
 export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -26,6 +28,11 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      {/* Asistente virtual (botón flotante). Solo en las páginas con navegación
+          completa; la landing y la vCard quedan sin widget a propósito.
+          Se muestra únicamente en imágenes construidas con AGENTE_HABILITADO=1
+          (hoy: QA). Producción lo activa cuando el orquestador esté publicado. */}
+      {AGENTE_HABILITADO && <ChatWidget />}
     </>
   );
 }
