@@ -5,6 +5,7 @@
 
     .\deploy.ps1                      # QA (por defecto): web-corporativa-service-qa
     .\deploy.ps1 -Entorno qa -SinAgente
+    .\deploy.ps1 -Entorno qa -SoloDesplegar -Tag 3891ccd-qa   # reutiliza una imagen ya construida
     .\deploy.ps1 -Entorno prod        # solo desde main y con el árbol limpio
 
   Producción se publica normalmente sola: el disparador de Cloud Build
@@ -35,12 +36,24 @@ param(
   [string]$AgenteOrigen = "",
   # No mostrar el widget del asistente (imagen con AGENTE_HABILITADO=0).
   [switch]$SinAgente,
+  # Saltar la construcción y desplegar la imagen con la etiqueta -Tag (o la del SHA actual).
+  [switch]$SoloDesplegar,
+  [string]$Tag = "",
   [string]$Project = "intranet-428417",
   [string]$Region = "us-central1",
   [string]$Dominio = "osctopsolutionsgroup.com"
 )
 
 $ErrorActionPreference = "Stop"
+
+# Comprueba si un recurso existe sin que PowerShell 5.1 convierta el "NOT_FOUND"
+# de gcloud en un error fatal (con ErrorActionPreference=Stop, redirigir stderr
+# de un ejecutable nativo lanza NativeCommandError).
+function Existe-Gcloud([string[]]$Args) {
+  $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+  try { $null = & gcloud @Args --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
+  finally { $ErrorActionPreference = $prev }
+}
 
 $sufijo   = if ($Entorno -eq "prod") { "" } else { "-$Entorno" }
 $servicio = "web-corporativa-service$sufijo"
@@ -63,10 +76,14 @@ $sucio = (git status --porcelain).Length -gt 0
 if ($Entorno -eq "prod" -and $rama -ne "main") { throw "Producción se despliega solo desde main (rama actual: $rama)" }
 if ($Entorno -eq "prod" -and $sucio)           { throw "Hay cambios sin commit. Producción se despliega con el árbol limpio." }
 
-$tag = "$sha-$Entorno"
-if ($sucio) {
-  Write-Warning "Árbol con cambios sin commit: la imagen se etiqueta como sucia."
-  $tag += "-sucio-" + (Get-Date -Format "yyyyMMddHHmm")
+if ($Tag) {
+  $tag = $Tag
+} else {
+  $tag = "$sha-$Entorno"
+  if ($sucio -and -not $SoloDesplegar) {
+    Write-Warning "Árbol con cambios sin commit: la imagen se etiqueta como sucia."
+    $tag += "-sucio-" + (Get-Date -Format "yyyyMMddHHmm")
+  }
 }
 $imagen = "${repoAR}/${servicio}:$tag"
 
@@ -78,14 +95,17 @@ Write-Host "Agente    : $(if ($SinAgente) { 'deshabilitado' } else { $AgenteOrig
 Write-Host "Rama/SHA  : $rama @ $sha`n"
 
 # ── 2. Imagen (Cloud Build, build-args por entorno) ───────────────────────────
-Write-Host "== Construyendo la imagen ==" -ForegroundColor Cyan
-gcloud builds submit --config cloudbuild.yaml --project $Project `
-  --substitutions "_IMAGEN=$imagen,_ENTORNO=$Entorno,_SITE_URL=$siteUrl,_AGENTE_HABILITADO=$agenteHabilitado"
-if ($LASTEXITCODE -ne 0) { throw "Falló la construcción de la imagen" }
+if ($SoloDesplegar) {
+  Write-Host "== Sin construir: se despliega la imagen existente $tag ==" -ForegroundColor Cyan
+} else {
+  Write-Host "== Construyendo la imagen ==" -ForegroundColor Cyan
+  gcloud builds submit --config cloudbuild.yaml --project $Project `
+    --substitutions "_IMAGEN=$imagen,_ENTORNO=$Entorno,_SITE_URL=$siteUrl,_AGENTE_HABILITADO=$agenteHabilitado"
+  if ($LASTEXITCODE -ne 0) { throw "Falló la construcción de la imagen" }
+}
 
 # ── 3. Secreto ADMIN_SECRET del entorno ───────────────────────────────────────
-$existe = gcloud secrets describe $secreto --project $Project --format "value(name)" 2>$null
-if (-not $existe) {
+if (-not (Existe-Gcloud @("secrets", "describe", $secreto, "--project", $Project))) {
   if ($Entorno -eq "prod") { throw "No existe el secreto $secreto en $Project" }
   Write-Host "== Creando el secreto $secreto con un valor aleatorio ==" -ForegroundColor Cyan
   $bytes = New-Object byte[] 32
@@ -128,8 +148,7 @@ if ($Entorno -ne "prod") {
 
 Write-Host "`nListo: $servicio ($tag)." -ForegroundColor Green
 if ($Entorno -ne "prod") {
-  $bs = gcloud compute backend-services describe "web-corporativa-backend$sufijo" --global --project $Project --format "value(name)" 2>$null
-  if (-not $bs) {
+  if (-not (Existe-Gcloud @("compute", "backend-services", "describe", "web-corporativa-backend$sufijo", "--global", "--project", $Project))) {
     Write-Host "Primer despliegue de $Entorno`: falta el balanceador. Ejecutar .\infra\aprovisionar-qa.ps1 -Entorno $Entorno" -ForegroundColor Yellow
   } else {
     Write-Host "URL: $siteUrl (acceso por IAP)"

@@ -44,16 +44,24 @@ $matcher  = "web-corporativa-matcher$sufijo"
 $hostWeb  = "web-$Entorno.$Dominio"
 
 function Paso($t) { Write-Host "`n== $t" -ForegroundColor Cyan }
-function Existe([scriptblock]$cmd) { $r = & $cmd 2>$null; return [bool]$r }
+
+# Comprueba si un recurso existe sin que PowerShell 5.1 convierta el "NOT_FOUND"
+# de gcloud en un error fatal (con ErrorActionPreference=Stop, redirigir stderr
+# de un ejecutable nativo lanza NativeCommandError).
+function Existe-Gcloud([string[]]$Args) {
+  $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+  try { $null = & gcloud @Args --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
+  finally { $ErrorActionPreference = $prev }
+}
 
 Paso "0. Servicio de Cloud Run"
-if (-not (Existe { gcloud run services describe $servicio --region $Region --project $Project --format "value(metadata.name)" })) {
+if (-not (Existe-Gcloud @("run", "services", "describe", $servicio, "--region", $Region, "--project", $Project))) {
   throw "No existe $servicio. Ejecutar primero .\deploy.ps1 -Entorno $Entorno"
 }
 $numero = gcloud projects describe $Project --format "value(projectNumber)"
 
 Paso "1. NEG serverless $neg"
-if (Existe { gcloud compute network-endpoint-groups describe $neg --region $Region --project $Project --format "value(name)" }) {
+if (Existe-Gcloud @("compute", "network-endpoint-groups", "describe", $neg, "--region", $Region, "--project", $Project)) {
   Write-Host "   ya existe"
 } else {
   gcloud compute network-endpoint-groups create $neg --region $Region --project $Project `
@@ -61,7 +69,7 @@ if (Existe { gcloud compute network-endpoint-groups describe $neg --region $Regi
 }
 
 Paso "2. Backend service $bs (IAP habilitado, Cloud Armor)"
-if (Existe { gcloud compute backend-services describe $bs --global --project $Project --format "value(name)" }) {
+if (Existe-Gcloud @("compute", "backend-services", "describe", $bs, "--global", "--project", $Project)) {
   Write-Host "   ya existe"
 } else {
   gcloud compute backend-services create $bs --global --project $Project `
