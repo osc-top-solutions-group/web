@@ -30,7 +30,7 @@ type Turno = { rol: "usuario" | "agente"; texto: string };
 const SESSION_KEY = "agente-session-id";
 const TEASER_KEY = "agente-teaser-visto";
 const SALUDO =
-  "¡Hola! Soy el asistente virtual de OSC. Puedo contarte sobre nuestras soluciones de conectividad, ciberseguridad y operaciones gestionadas, o radicar tu solicitud para que el área responsable te responda por correo. Atiendo en español, English y português. ¿En qué te ayudo?";
+  "¡Hola! Soy NOVA, el asistente virtual de OSC. Puedo contarte sobre nuestras soluciones de conectividad, ciberseguridad y operaciones gestionadas, o radicar tu solicitud para que el área responsable te responda por correo. Atiendo en español, English y português. ¿En qué te ayudo?";
 const AVISO =
   "Asistente automatizado. Los datos que compartas se tratan según nuestra política de datos personales.";
 
@@ -188,7 +188,7 @@ export default function ChatWidget() {
       {abierto && (
         <div
           role="dialog"
-          aria-label="Asistente virtual de OSC"
+          aria-label="NOVA, asistente virtual de OSC"
           className="flex h-[32rem] w-[23rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
           style={{ boxShadow: `${BORDE_NEON}, 0 24px 48px rgba(30,27,184,0.25)` }}
         >
@@ -199,7 +199,7 @@ export default function ChatWidget() {
                 <Image src="/agente/mascota-sm.webp" alt="" width={40} height={40} priority={false} />
               </span>
               <div className="leading-tight">
-                <div className="text-sm font-bold text-white">Asistente OSC</div>
+                <div className="text-sm font-bold text-white">NOVA</div>
                 <div className="text-[11px] text-white/75">Español · English · Português</div>
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function ChatWidget() {
               ¿Tienes una pregunta?
             </div>
             <div className="text-xs" style={{ color: "#3A3780" }}>
-              Estoy aquí para ayudarte.
+              Soy NOVA, estoy aquí para ayudarte.
             </div>
           </div>
           <button
