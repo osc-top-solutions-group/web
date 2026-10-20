@@ -30,7 +30,7 @@ type Turno = { rol: "usuario" | "agente"; texto: string };
 const SESSION_KEY = "agente-session-id";
 const TEASER_KEY = "agente-teaser-visto";
 const SALUDO =
-  "¡Hola! Soy NOVA, el asistente virtual de OSC. Puedo contarte sobre nuestras soluciones de conectividad, ciberseguridad y operaciones gestionadas, o radicar tu solicitud para que el área responsable te responda por correo. Atiendo en español, English y português. ¿En qué te ayudo?";
+  "¡Hola! Soy NOVA, el asistente virtual de OSC Top Solutions Group. Te acompaño a explorar nuestras soluciones especializadas en conectividad crítica, ciberseguridad y operaciones gestionadas (IT/OT). Cuéntame qué reto de infraestructura tienes, o si prefieres que derivemos tu caso directamente con nuestro equipo especialista. ¿En qué te apoyamos hoy?";
 const AVISO =
   "Asistente automatizado. Los datos que compartas se tratan según nuestra política de datos personales.";
 
@@ -72,13 +72,16 @@ export default function ChatWidget() {
   const pathname = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [teaser, setTeaser] = useState(false);
+  // La burbuja también se muestra mientras el puntero (o el foco) está sobre la mascota.
+  const [sobreMascota, setSobreMascota] = useState(false);
   const [turnos, setTurnos] = useState<Turno[]>([{ rol: "agente", texto: SALUDO }]);
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState<"idle" | "enviando" | "error" | "cerrada">("idle");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // La burbuja de invitación aparece a los pocos segundos, una vez por pestaña.
+  // La burbuja de invitación aparece sola a los pocos segundos, una vez por pestaña;
+  // después vuelve a aparecer cada vez que el visitante pasa el puntero por la mascota.
   useEffect(() => {
     let visto = false;
     try {
@@ -184,7 +187,11 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    <div
+      className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3"
+      onMouseEnter={() => setSobreMascota(true)}
+      onMouseLeave={() => setSobreMascota(false)}
+    >
       {abierto && (
         <div
           role="dialog"
@@ -302,7 +309,7 @@ export default function ChatWidget() {
       )}
 
       {/* Burbuja de invitación (diseño "¿Tienes una pregunta?") */}
-      {!abierto && teaser && (
+      {!abierto && (teaser || sobreMascota) && (
         <div
           className="relative flex max-w-[calc(100vw-6rem)] items-center gap-3 rounded-full bg-white py-2 pl-5 pr-2 shadow-xl"
           style={{ boxShadow: BORDE_NEON }}
@@ -343,6 +350,8 @@ export default function ChatWidget() {
         aria-label={abierto ? "Cerrar asistente" : "Abrir asistente"}
         aria-expanded={abierto}
         onClick={() => (abierto ? setAbierto(false) : abrir())}
+        onFocus={() => setSobreMascota(true)}
+        onBlur={() => setSobreMascota(false)}
         className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-105"
         style={{ background: GRADIENTE, boxShadow: `${BORDE_NEON}, 0 12px 28px rgba(30,27,184,0.35)` }}
       >
