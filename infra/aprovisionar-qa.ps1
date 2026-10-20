@@ -1,4 +1,4 @@
-<#
+﻿<#
   Aprovisionamiento (una sola vez) del ambiente de pruebas de la web corporativa
   en el balanceador compartido de intranet-428417. Idempotente: los recursos
   que ya existen se dejan como están. Ejecutar en PowerShell con una cuenta con
@@ -48,9 +48,9 @@ function Paso($t) { Write-Host "`n== $t" -ForegroundColor Cyan }
 # Comprueba si un recurso existe sin que PowerShell 5.1 convierta el "NOT_FOUND"
 # de gcloud en un error fatal (con ErrorActionPreference=Stop, redirigir stderr
 # de un ejecutable nativo lanza NativeCommandError).
-function Existe-Gcloud([string[]]$Args) {
+function Existe-Gcloud([string[]]$Argumentos) {
   $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
-  try { $null = & gcloud @Args --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
+  try { $null = & gcloud @Argumentos --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
   finally { $ErrorActionPreference = $prev }
 }
 
@@ -120,3 +120,5 @@ Write-Host @"
    Para desactivar: no se borra el servicio, se quita el host del URL map
    (gcloud compute url-maps remove-path-matcher $UrlMap --path-matcher-name $matcher).
 "@
+
+exit 0

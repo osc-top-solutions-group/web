@@ -1,0 +1,133 @@
+defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/intranet-backend-service
+fingerprint: vbEpKuV30KU=
+hostRules:
+- hosts:
+  - esm-qa.osctopsolutionsgroup.com
+  pathMatcher: esm-matcher-qa
+- hosts:
+  - portal-proveedores.osctopsolutionsgroup.com
+  pathMatcher: proveedores-matcher
+- hosts:
+  - constructor-qa.osctopsolutionsgroup.com
+  pathMatcher: constructor-ppp-matcher-qa
+- hosts:
+  - portal-proveedores-qa.osctopsolutionsgroup.com
+  pathMatcher: proveedores-matcher-qa
+- hosts:
+  - cuentas-estrategicas.osctopsolutionsgroup.com
+  pathMatcher: cuentas-estrategicas-matcher
+- hosts:
+  - osctopsolutionsgroup.com
+  - www.osctopsolutionsgroup.com
+  pathMatcher: web-corporativa-matcher
+- hosts:
+  - '*'
+  pathMatcher: media-paths
+- hosts:
+  - marketintelligence.osctopsolutionsgroup.com
+  pathMatcher: marketintelligence-matcher
+- hosts:
+  - playbook.osctopsolutionsgroup.com
+  pathMatcher: playbook-matcher
+- hosts:
+  - gtm.osctopsolutionsgroup.com
+  pathMatcher: gtm-matcher
+- hosts:
+  - sgc.osctopsolutionsgroup.com
+  pathMatcher: sgc-matcher
+- hosts:
+  - sgc-qa.osctopsolutionsgroup.com
+  pathMatcher: sgc-matcher-qa
+name: intranet-url-map
+pathMatchers:
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/esm-frontend-backend-service-qa
+  name: esm-matcher-qa
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/esm-api-backend-service-qa
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-frontend-backend-service
+  name: proveedores-matcher
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-api-backend-service
+  - paths:
+    - /proveedores
+    - /proveedores/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-admin-frontend-backend-service
+  - paths:
+    - /proveedores-api
+    - /proveedores-api/*
+    routeAction:
+      urlRewrite:
+        pathPrefixRewrite: /
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-admin-api-backend-service
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/constructor-ppp-frontend-backend-service-qa
+  name: constructor-ppp-matcher-qa
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/constructor-ppp-api-backend-service-qa
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-frontend-backend-service-qa
+  name: proveedores-matcher-qa
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-api-backend-service-qa
+  - paths:
+    - /proveedores
+    - /proveedores/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-admin-frontend-backend-service-qa
+  - paths:
+    - /proveedores-api
+    - /proveedores-api/*
+    routeAction:
+      urlRewrite:
+        pathPrefixRewrite: /
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/proveedores-admin-api-backend-service-qa
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/intranet-backend-service
+  name: media-paths
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/intranet-api-backend
+  - paths:
+    - /anuncios/*
+    - /documentos/*
+    - /multimedia/*
+    - /presentaciones/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendBuckets/intranet-media-backend
+  - paths:
+    - /crm-dashboard-process-analytics
+    - /crm-dashboard-process-analytics/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/crm-dashboard-process-analytics-backend-service-frontend
+  - paths:
+    - /crm-dashboard-process-analytics-api
+    - /crm-dashboard-process-analytics-api/*
+    routeAction:
+      urlRewrite:
+        pathPrefixRewrite: /
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/crm-dashboard-process-analytics-backend-service-api
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/web-corporativa-backend
+  name: web-corporativa-matcher
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/cuentas-estrategicas-backend-service
+  name: cuentas-estrategicas-matcher
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/marketintelligence-backend-service
+  name: marketintelligence-matcher
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/playbook-backend-service
+  name: playbook-matcher
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/gtm-backend-service
+  name: gtm-matcher
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/sgc-frontend-backend-service
+  name: sgc-matcher
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/sgc-api-backend-service
+- defaultService: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/sgc-frontend-backend-service-qa
+  name: sgc-matcher-qa
+  pathRules:
+  - paths:
+    - /api/*
+    service: https://www.googleapis.com/compute/v1/projects/intranet-428417/global/backendServices/sgc-api-backend-service-qa

@@ -1,4 +1,4 @@
-<#
+﻿<#
   Despliegue de la web corporativa en Cloud Run (intranet-428417), por entorno.
   Ejecutar desde la raíz del repo, en PowerShell (no en Git Bash: MSYS reescribe
   las rutas /projects/... como rutas de Windows), con gcloud autenticado.
@@ -49,9 +49,9 @@ $ErrorActionPreference = "Stop"
 # Comprueba si un recurso existe sin que PowerShell 5.1 convierta el "NOT_FOUND"
 # de gcloud en un error fatal (con ErrorActionPreference=Stop, redirigir stderr
 # de un ejecutable nativo lanza NativeCommandError).
-function Existe-Gcloud([string[]]$Args) {
+function Existe-Gcloud([string[]]$Argumentos) {
   $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
-  try { $null = & gcloud @Args --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
+  try { $null = & gcloud @Argumentos --verbosity none 2>&1; return ($LASTEXITCODE -eq 0) }
   finally { $ErrorActionPreference = $prev }
 }
 
@@ -156,3 +156,6 @@ if ($Entorno -ne "prod") {
 } else {
   Write-Host "Registrar el despliegue en la hoja de despliegues (fecha, SHA, quién autorizó, resultado)."
 }
+
+# Que el código de salida sea el del despliegue y no el de la última comprobación.
+exit 0
