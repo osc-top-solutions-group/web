@@ -6,7 +6,7 @@ import { useRef, useEffect, useState } from "react";
 const stats = [
   { value: 30,    prefix: "",  suffix: " años", label: "Operación continua"  },
   { value: 16,    prefix: "",  suffix: "",       label: "Países"              },
-  { value: 2000,  prefix: "+", suffix: "",       label: "Clientes"            },
+  { value: 500,   prefix: "+", suffix: "",       label: "Clientes"            },
   { value: 33000, prefix: "+", suffix: "",       label: "Nodos gestionados"   },
 ];
 
