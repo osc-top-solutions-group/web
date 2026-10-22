@@ -20,7 +20,7 @@ export default function FooterCtaBanner() {
       <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-1">
-            16 países · 30 años · +2,000 clientes
+            16 países · 30 años · +500 clientes
           </p>
           <h3 className="text-2xl font-bold text-white">
             La infraestructura crítica de América confía en OSC

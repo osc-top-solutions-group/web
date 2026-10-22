@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: "Integrador Tecnológico Infraestructura Crítica LATAM | OSC",
   description:
-    "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443 vigentes 2027. +2,000 clientes y +33,000 nodos operativos en América Latina.",
+    "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443 vigentes 2027. +500 clientes y +33,000 nodos operativos en América Latina.",
   alternates: {
     canonical: `${SITE_URL}/`,
   },
@@ -39,7 +39,7 @@ const organizationSchema = {
     caption: "Logo OSC Top Solutions Group",
   },
   description:
-    "Integrador y operador tecnológico especializado en infraestructuras críticas en América Latina. 30 años de experiencia, 16 países, +2,000 clientes, +33,000 nodos gestionados.",
+    "Integrador y operador tecnológico especializado en infraestructuras críticas en América Latina. 30 años de experiencia, 16 países, +500 clientes, +33,000 nodos gestionados.",
   foundingDate: "1994",
   areaServed: AREA_SERVED,
   hasCredential: CERTIFICATIONS,

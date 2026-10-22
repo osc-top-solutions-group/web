@@ -209,7 +209,7 @@ function MegaMenuNosotros({ onClose }: { onClose: () => void }) {
               30 años construyendo infraestructura crítica
             </p>
             <p className="text-[10px] text-gray-400 leading-relaxed">
-              Presencia en 16 países. Más de 2,000 clientes en América.
+              Presencia en 16 países. Más de 500 clientes en América.
             </p>
           </div>
         </div>

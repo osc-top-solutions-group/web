@@ -16,7 +16,7 @@ function LinkedInIcon({ size = 32 }: { size?: number }) {
 export const metadata: Metadata = {
   title: "30 Años Integrando Infraestructura Crítica LATAM | OSC",
   description:
-    "Desde 1994, OSC opera en 16 países con +2,000 clientes, +33,000 nodos y 42 alianzas tecnológicas. ISO 27001, IEC 62443 e ISO 9001 certificados hasta 2027. Equipo directivo en Bogotá.",
+    "Desde 1994, OSC opera en 16 países con +500 clientes, +33,000 nodos y 42 alianzas tecnológicas. ISO 27001, IEC 62443 e ISO 9001 certificados hasta 2027. Equipo directivo en Bogotá.",
   keywords: [
     "OSC Top Solutions Group empresa",
     "integrador tecnológico LATAM 30 años",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "30 Años Integrando Infraestructura Crítica en LATAM | OSC Top Solutions",
     description:
-      "Desde 1994 — 16 países, +2,000 clientes, ISO 27001 + IEC 62443 + ISO 9001. Equipo directivo en Bogotá.",
+      "Desde 1994 — 16 países, +500 clientes, ISO 27001 + IEC 62443 + ISO 9001. Equipo directivo en Bogotá.",
     type: "website",
     url: `${SITE_URL}/nosotros`,
   },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 const capabilities = [
   { value: "30 años",    label: "Operación continua",       bar: 100 },
   { value: "16",         label: "Países",                   bar: 64  },
-  { value: "+2,000",     label: "Clientes",                 bar: 80  },
+  { value: "+500",       label: "Clientes",                 bar: 80  },
   { value: "+33,000",    label: "Nodos gestionados",        bar: 92  },
   { value: "+5,000",     label: "Kilómetros de Fibra óptica", bar: 78  },
   { value: "+12,000",    label: "Sitios NOC-SOC 24/7",      bar: 85  },
@@ -94,7 +94,7 @@ const orgSchema = {
   logo: { "@type": "ImageObject", url: ORG_LOGO },
   foundingDate: "1994",
   description:
-    "Integrador y operador tecnológico especializado en infraestructuras críticas en América Latina. 30 años de experiencia, 16 países, +2,000 clientes.",
+    "Integrador y operador tecnológico especializado en infraestructuras críticas en América Latina. 30 años de experiencia, 16 países, +500 clientes.",
   areaServed: AREA_SERVED,
   hasCredential: CERTIFICATIONS,
   contactPoint: { "@type": "ContactPoint", email: ORG_EMAIL, contactType: "customer service" },

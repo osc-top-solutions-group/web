@@ -925,7 +925,7 @@ export default async function IndustriaLanding({
               {[
                 "30+ años de operación",
                 "16 países",
-                "+2,000 clientes",
+                "+500 clientes",
                 "NOC 24/7 ISO 9001",
               ].map((signal) => (
                 <div key={signal} className="flex items-center gap-2">

@@ -90,7 +90,7 @@ export default function CtaFinal() {
 
           {/* Trust line */}
           <p className="mt-10 text-white/45 text-xs uppercase tracking-widest font-medium">
-            16 países · 30 años de trayectoria · +2,000 clientes
+            16 países · 30 años de trayectoria · +500 clientes
           </p>
         </AnimatedSection>
       </div>

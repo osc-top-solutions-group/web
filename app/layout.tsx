@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s | OSC Top Solutions",
   },
   description:
-    "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443 vigentes 2027. +2,000 clientes y +33,000 nodos operativos en América Latina.",
+    "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443 vigentes 2027. +500 clientes y +33,000 nodos operativos en América Latina.",
   keywords: [
     "integrador tecnológico infraestructura crítica LATAM",
     "ciberseguridad OT infraestructura crítica",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Integrador Tecnológico Infraestructura Crítica LATAM | OSC",
     description:
-      "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443. +2,000 clientes en América Latina.",
+      "OSC integra conectividad, ciberseguridad OT/IT y operaciones gestionadas en 16 países. ISO 27001 + IEC 62443. +500 clientes en América Latina.",
     type: "website",
     locale: "es_419",
     siteName: "OSC Top Solutions Group",
