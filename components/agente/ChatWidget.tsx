@@ -78,7 +78,16 @@ export default function ChatWidget() {
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState<"idle" | "enviando" | "error" | "cerrada">("idle");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // El cuadro de texto crece con el contenido (hasta ~5 líneas) y vuelve a una
+  // línea al vaciarse tras enviar.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }, [mensaje, abierto]);
 
   // La burbuja de invitación aparece sola a los pocos segundos, una vez por pestaña;
   // después vuelve a aparecer cada vez que el visitante pasa el puntero por la mascota.
@@ -276,27 +285,33 @@ export default function ChatWidget() {
           </div>
 
           {/* Entrada */}
-          <form onSubmit={enviar} className="flex items-center gap-2 px-3 pt-3 pb-1" style={{ borderTop: "1px solid #ECEAFF" }}>
-            <input
+          <form onSubmit={enviar} className="flex items-end gap-2 px-3 pt-3 pb-1" style={{ borderTop: "1px solid #ECEAFF" }}>
+            {/* Enter envía; Shift+Enter (o Ctrl/Cmd+Enter) inserta un salto de línea. */}
+            <textarea
               ref={inputRef}
-              type="text"
               value={mensaje}
+              rows={1}
               onChange={(e) => {
                 setMensaje(e.target.value);
                 if (estado === "error") setEstado("idle");
               }}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter" || e.shiftKey || e.ctrlKey || e.metaKey || e.nativeEvent.isComposing) return;
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }}
               maxLength={2000}
               disabled={estado === "cerrada"}
-              placeholder={estado === "cerrada" ? "Conversación finalizada" : "Escribe tu mensaje…"}
+              placeholder={estado === "cerrada" ? "Conversación finalizada" : "Escribe tu mensaje… (Shift+Enter: salto de línea)"}
               aria-label="Mensaje para el asistente"
-              className="flex-1 rounded-full px-4 py-2 text-sm outline-none transition-shadow focus:shadow-[0_0_0_2px_rgba(138,43,255,0.35)] disabled:opacity-50"
+              className="max-h-[120px] flex-1 resize-none overflow-y-auto rounded-2xl px-4 py-2 text-sm leading-relaxed outline-none transition-shadow focus:shadow-[0_0_0_2px_rgba(138,43,255,0.35)] disabled:opacity-50"
               style={{ background: "#F3F1FF", border: "1px solid #DAD5FF", color: "#1f2340" }}
             />
             <button
               type="submit"
               disabled={estado === "enviando" || estado === "cerrada" || !mensaje.trim()}
               aria-label="Enviar mensaje"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+              className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
               style={{ background: GRADIENTE }}
             >
               <Send size={14} />
