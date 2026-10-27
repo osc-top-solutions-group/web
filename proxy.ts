@@ -94,6 +94,18 @@ function buildCsp(scriptSrc: string): string {
  */
 const AGENTE_API_PREFIX = "/agente-api/";
 
+/*
+ * El balanceador de Google deja X-Forwarded-For como
+ * "<valores que trajera el cliente>, <IP real del cliente>, <IP del balanceador>":
+ * la IP fiable es la penúltima. Lo que el cliente haya puesto por su cuenta se ignora.
+ */
+function ipDelVisitante(xff: string | null): string | null {
+  if (!xff) return null;
+  const partes = xff.split(",").map((s) => s.trim()).filter(Boolean);
+  if (partes.length >= 2) return partes[partes.length - 2];
+  return partes[0] ?? null;
+}
+
 export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith(AGENTE_API_PREFIX)) {
     const origin = (process.env.AGENTE_API_ORIGIN ?? "").replace(/\/+$/, "");
@@ -101,7 +113,16 @@ export function proxy(request: NextRequest) {
       return NextResponse.json({ error: "Asistente no disponible" }, { status: 503 });
     }
     const destino = new URL(request.nextUrl.pathname + request.nextUrl.search, origin);
-    return NextResponse.rewrite(destino);
+    // El orquestador ve como cliente la IP de salida de este servicio (todos los
+    // visitantes compartirían un mismo límite de tasa). Se le pasa la IP real del
+    // visitante y un token compartido (AGENTE_ORIGEN_TOKEN) para que solo acepte
+    // ese dato, y solo tráfico, que venga de la web.
+    const headers = new Headers(request.headers);
+    const ipVisitante = ipDelVisitante(request.headers.get("x-forwarded-for"));
+    if (ipVisitante) headers.set("x-agente-cliente-ip", ipVisitante);
+    const token = process.env.AGENTE_ORIGEN_TOKEN ?? "";
+    if (token) headers.set("x-agente-origen", token);
+    return NextResponse.rewrite(destino, { request: { headers } });
   }
 
   const isDev = process.env.NODE_ENV === "development";

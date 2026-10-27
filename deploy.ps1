@@ -126,6 +126,17 @@ $maxInst = if ($Entorno -eq "prod") { 100 } else { 3 }
 # --set-env-vars reemplaza TODAS las variables: pasar siempre el conjunto completo.
 $vars = @("AGENTE_API_ORIGIN=$(if ($SinAgente) { '' } else { $AgenteOrigen })")
 
+# Token compartido con el orquestador del asistente (header x-agente-origen, ver proxy.ts).
+# Lo crea infra\aprovisionar.ps1 del repo del agente en ambos proyectos; si aún no existe
+# el servicio se despliega sin él (el límite de tasa del orquestador será por IP de salida).
+$secretoToken = "web-corporativa-agente-token$sufijo"
+$secretos = "ADMIN_SECRET=${secreto}:latest"
+if (Existe-Gcloud @("secrets", "describe", $secretoToken, "--project", $Project)) {
+  $secretos += ",AGENTE_ORIGEN_TOKEN=${secretoToken}:latest"
+} else {
+  Write-Warning "No existe el secreto ${secretoToken}; el asistente no recibirá el token de origen (ver repo del agente, infra\aprovisionar.ps1)."
+}
+
 # QA: nadie entra sin pasar por el balanceador + IAP (solo el agente de IAP invoca).
 # Prod: público, como hoy (invoker IAM desactivado; la política de la organización
 # no admite allUsers, por eso no se usa --allow-unauthenticated).
@@ -137,7 +148,7 @@ gcloud run deploy $servicio --image $imagen --region $Region --project $Project 
   --ingress internal-and-cloud-load-balancing $auth `
   --labels "app=web-corporativa,entorno=$Entorno,commit=$sha" `
   --set-env-vars ($vars -join ",") `
-  --update-secrets "ADMIN_SECRET=${secreto}:latest"
+  --update-secrets $secretos
 if ($LASTEXITCODE -ne 0) { throw "Falló el despliegue de $servicio" }
 
 if ($Entorno -ne "prod") {
