@@ -1,3 +1,4 @@
+console.log(`[runtime] Node ${process.version} (${process.platform}/${process.arch})`); // trazabilidad CVE-2026-111497
 /**
  * notify-web-leads — notificación por correo de los leads de la web pública.
  *
