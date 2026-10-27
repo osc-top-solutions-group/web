@@ -13,7 +13,7 @@ type ArticleMeta = {
   readTime: string;
   image: string;
 } & (
-  | { source: "wp"; wpSlug: string }
+  | { source: "archivo" } // texto completo pendiente de migrar al repo (antes venía del WordPress legado)
   | { source: "linkedin"; linkedInUrl: string }
 );
 
@@ -25,9 +25,8 @@ const ARTICLES: Record<string, ArticleMeta> = {
     excerpt: "Redes privadas y soluciones de conectividad avanzada que posicionan a la minería 4.0 con mayor eficiencia, seguridad y continuidad operativa en LATAM.",
     date: "2025",
     readTime: "5 min",
-    image: "https://osctopsolutionsgroup.com/wp-content/uploads/2026/02/Mineria.jpg",
-    source: "wp",
-    wpSlug: "redes-privadas-mineria-4-0",
+    image: "",
+    source: "archivo",
   },
   "blindaje-operativo": {
     category: "Ciberseguridad",
@@ -58,9 +57,8 @@ const ARTICLES: Record<string, ArticleMeta> = {
     excerpt: "El factor humano es el eslabón más crítico en cualquier estrategia de seguridad. La concientización y el entrenamiento del personal son componentes esenciales de una defensa integral.",
     date: "2025",
     readTime: "4 min",
-    image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/La-Clave-Humana-en-la-Ciberseguridad.webp",
-    source: "wp",
-    wpSlug: "la-clave-humana-en-la-ciberseguridad",
+    image: "",
+    source: "archivo",
   },
   "monetizacion-efectiva-de-5g": {
     category: "Telecom",
@@ -69,9 +67,8 @@ const ARTICLES: Record<string, ArticleMeta> = {
     excerpt: "Estrategias para monetizar el potencial real del 5G mediante innovación en cloud y edge computing, posicionando a los operadores como socios estratégicos en sectores exigentes.",
     date: "2025",
     readTime: "6 min",
-    image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/Monetizacion-efectiva-de-5G-Innovacion-en-la-nube-y-el-borde.webp",
-    source: "wp",
-    wpSlug: "monetizacion-efectiva-de-5g-innovacion-en-la-nube-y-el-borde",
+    image: "",
+    source: "archivo",
   },
   "estrategia-lumu-ciberseguridad": {
     category: "Ciberseguridad",
@@ -80,16 +77,17 @@ const ARTICLES: Record<string, ArticleMeta> = {
     excerpt: "Cómo Lumu aplica transferencia de conocimiento y aprendizaje continuo como eje central de su estrategia de ciberseguridad para infraestructuras críticas en LATAM.",
     date: "2025",
     readTime: "5 min",
-    image: "https://osctopsolutionsgroup.com/wp-content/uploads/2024/04/La-estrategia-de-lumu-en-ciberseguridad.png",
-    source: "wp",
-    wpSlug: "transferencia-y-aprendizaje-en-linea-la-estrategia-de-lumu-en-ciberseguridad",
+    image: "",
+    source: "archivo",
   },
 };
 
 /*
  * Renderizado dinámico forzado: esta ruta está en el grupo estricto de la CSP
  * (ver proxy.ts) y Next.js solo inyecta el nonce en páginas dinámicas.
- * El contenido de WordPress sigue cacheado (fetch con revalidate: 3600).
+ * 2026-10-27: se eliminó el fetch() server-side al WordPress legado
+ * (/wp-json): el dominio ya apunta a este sitio y respondía 404, y el fetch
+ * exponía el proceso a CVE-2026-111497 (descompresión Brotli en undici).
  */
 export const dynamic = "force-dynamic";
 
@@ -106,31 +104,12 @@ export async function generateMetadata(
   };
 }
 
-async function fetchWpContent(wpSlug: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `https://osctopsolutionsgroup.com/wp-json/wp/v2/posts?slug=${wpSlug}&_fields=content`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.[0]?.content?.rendered ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export default async function BlogPostPage(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
   const article = ARTICLES[slug];
   if (!article) notFound();
-
-  let wpContent: string | null = null;
-  if (article.source === "wp") {
-    wpContent = await fetchWpContent(article.wpSlug);
-  }
 
   return (
     <main className="min-h-screen bg-white">
@@ -182,48 +161,37 @@ export default async function BlogPostPage(
 
       {/* ── Content ── */}
       <div className="max-w-3xl mx-auto px-6 py-12">
-        {wpContent ? (
+        {/* Resumen + enlace externo (LinkedIn) o aviso de texto pendiente */}
+        <div className="flex flex-col items-center text-center py-12 gap-6">
           <div
-            className="prose prose-slate prose-lg max-w-none
-              prose-headings:font-extrabold prose-headings:text-[#0F172A]
-              prose-p:text-slate-600 prose-p:leading-relaxed
-              prose-a:text-[#FF0057] prose-a:no-underline hover:prose-a:underline
-              prose-img:rounded-xl prose-img:shadow-lg
-              prose-strong:text-[#0F172A]
-              prose-ul:text-slate-600 prose-ol:text-slate-600"
-            dangerouslySetInnerHTML={{ __html: wpContent }}
-          />
-        ) : (
-          /* LinkedIn / fallback */
-          <div className="flex flex-col items-center text-center py-12 gap-6">
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center"
-              style={{ background: `${article.categoryColor}15`, border: `1px solid ${article.categoryColor}30` }}
-            >
-              <ExternalLink size={24} style={{ color: article.categoryColor }} />
-            </div>
-            <p className="text-slate-500 text-base leading-relaxed max-w-md">
-              {article.excerpt}
-            </p>
-            <p className="text-slate-400 text-sm">
-              Este artículo está publicado en LinkedIn. Haz clic para leerlo completo.
-            </p>
-            {"linkedInUrl" in article && (
-              <a
-                href={article.linkedInUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-white font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-105 shadow-lg"
-                style={{ background: "#0077B5" }}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-                Leer en LinkedIn
-              </a>
-            )}
+            className="w-16 h-16 rounded-2xl flex items-center justify-center"
+            style={{ background: `${article.categoryColor}15`, border: `1px solid ${article.categoryColor}30` }}
+          >
+            <ExternalLink size={24} style={{ color: article.categoryColor }} />
           </div>
-        )}
+          <p className="text-slate-500 text-base leading-relaxed max-w-md">
+            {article.excerpt}
+          </p>
+          <p className="text-slate-400 text-sm">
+            {"linkedInUrl" in article
+              ? "Este artículo está publicado en LinkedIn. Haz clic para leerlo completo."
+              : "El texto completo de este artículo estará disponible próximamente."}
+          </p>
+          {"linkedInUrl" in article && (
+            <a
+              href={article.linkedInUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full text-white font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-105 shadow-lg"
+              style={{ background: "#0077B5" }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              Leer en LinkedIn
+            </a>
+            )}
+        </div>
       </div>
 
       {/* ── Back CTA ── */}
