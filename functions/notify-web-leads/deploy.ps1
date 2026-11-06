@@ -25,6 +25,14 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+# Consulta un recurso sin que PowerShell 5.1 convierta el NOT_FOUND de gcloud (stderr)
+# en un error fatal bajo ErrorActionPreference=Stop. Devuelve la salida o $null.
+function Consultar-Gcloud([string[]]$Argumentos) {
+  $prev = $ErrorActionPreference; $ErrorActionPreference = "Continue"
+  try { $salida = & gcloud @Argumentos 2>$null; if ($LASTEXITCODE -eq 0) { return $salida } else { return $null } }
+  finally { $ErrorActionPreference = $prev }
+}
 $Project = "intranet-428417"
 $Region  = "us-central1"
 $Sa      = "sa-notificaciones-web@$Project.iam.gserviceaccount.com"
@@ -70,7 +78,7 @@ if ($Solo -in "all", "sweep") {
     --region $Region --project $Project `
     --member "serviceAccount:$Sa" --role roles/run.invoker | Out-Null
 
-  $jobExists = gcloud scheduler jobs describe resend-pending-leads --location $Region --project $Project --format "value(name)" 2>$null
+  $jobExists = Consultar-Gcloud @("scheduler", "jobs", "describe", "resend-pending-leads", "--location", $Region, "--project", $Project, "--format", "value(name)")
   $verb = if ($jobExists) { "update" } else { "create" }
   gcloud scheduler jobs $verb http resend-pending-leads `
     --location $Region --project $Project `
@@ -91,7 +99,7 @@ if ($Solo -in "all", "armor") {
   # formularios: 10 POST/min/IP y ban de 10 min al que pase de 30. Un humano
   # nunca envía 10 formularios en un minuto.
   $policy = "web-corporativa-security-policy"
-  $policyExists = gcloud compute security-policies describe $policy --project $Project --format "value(name)" 2>$null
+  $policyExists = Consultar-Gcloud @("compute", "security-policies", "describe", $policy, "--project", $Project, "--format", "value(name)")
   if (-not $policyExists) {
     gcloud compute security-policies create $policy --project $Project `
       --description "Sitio público osctopsolutionsgroup.com (web-corporativa-backend)"
@@ -104,7 +112,7 @@ if ($Solo -in "all", "armor") {
       --description "Throttle base: 500 req/min por IP (igual que la política compartida)"
     if ($LASTEXITCODE -ne 0) { throw "Falló la regla base" }
   }
-  $exists = gcloud compute security-policies rules describe 1000 --security-policy $policy --project $Project --format "value(priority)" 2>$null
+  $exists = Consultar-Gcloud @("compute", "security-policies", "rules", "describe", "1000", "--security-policy", $policy, "--project", $Project, "--format", "value(priority)")
   $verb = if ($exists) { "update" } else { "create" }
   gcloud compute security-policies rules $verb 1000 `
     --security-policy $policy --project $Project `
