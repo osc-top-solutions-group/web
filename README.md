@@ -110,3 +110,10 @@ gcloud run services update-traffic web-corporativa-service `
 ```
 
 Las tres etapas del Dockerfile usan **Node 22 LTS**. No bajarlo: `firebase-admin` declara `engines.node >= 22` y Next 16 pide `>= 20.9`. La etapa `runner` usaba `node:18-alpine`, incompatible con ambos — un contenedor así arranca bien y falla recién al procesar el primer formulario.
+
+## Versión de Node (estándar OSC)
+
+Node **24 LTS, mínimo 24.22.1** (`.nvmrc` / `engines`). Es el parche de la vulnerabilidad Brotli CVE-2026-111497
+(boletín Node.js de octubre de 2026); versiones anteriores de cualquier línea son vulnerables. En local: `nvm install 24.22.1 && nvm use 24.22.1`
+y `node -v`. Los backends tienen `engine-strict=true`: npm no instala con un Node fuera del rango. En Cloud Run el buildpack
+usa `--base-image nodejs24 --automatic-updates`, así que los parches siguientes de Node 24 los aplica Google sin redesplegar.

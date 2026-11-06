@@ -37,7 +37,7 @@ if ($NotifyToFrenteCritico) { $envVars += ",NOTIFY_TO_WEB_FRENTE_CRITICO=$Notify
 function Deploy-Trigger([string]$Name, [string]$Modulo) {
   Write-Host "`n== $Name (trigger formularios/$Modulo/envios) ==" -ForegroundColor Cyan
   gcloud functions deploy $Name `
-    --gen2 --runtime nodejs22 --region $Region --project $Project `
+    --gen2 --runtime nodejs24 --region $Region --project $Project `
     --source $Source --entry-point notifyLead `
     --trigger-event-filters="type=google.cloud.firestore.document.v1.created" `
     --trigger-event-filters="database=(default)" `
@@ -55,7 +55,7 @@ if ($Solo -in "all", "fc")       { Deploy-Trigger "notify-web-frente-critico" "w
 if ($Solo -in "all", "sweep") {
   Write-Host "`n== resend-pending-leads (HTTP privada, la invoca Cloud Scheduler) ==" -ForegroundColor Cyan
   gcloud functions deploy resend-pending-leads `
-    --gen2 --runtime nodejs22 --region $Region --project $Project `
+    --gen2 --runtime nodejs24 --region $Region --project $Project `
     --source $Source --entry-point resendPendingLeads `
     --trigger-http --no-allow-unauthenticated `
     --service-account $Sa --ingress-settings internal-only `
