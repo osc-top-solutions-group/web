@@ -1,19 +1,38 @@
 import type { Metadata } from "next";
-import AnimatedSection from "@/components/ui/AnimatedSection";
-import { Network, Truck, Users, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { ArrowRight, BookOpen, ClipboardList, ShieldAlert } from "lucide-react";
+import AnimatedSection from "@/components/ui/AnimatedSection";
 
 export const metadata: Metadata = {
   title: "OSC Connect – OSC Top Solutions",
-  description: "OSC Nexus, Supplier Connection y Careers. El ecosistema digital de OSC.",
+  description:
+    "El ecosistema digital de OSC: Centro de Servicio al Cliente, OSC Nexus, Supplier Connection y Careers.",
 };
+
+/* TODO: reemplazar por las URLs reales del Centro de Servicio cuando estén publicadas. */
+const SERVICE_CENTER_URL = "/contacto";
+const SERVICE_CASE_URL = "/contacto";
+
+const audiences = [
+  { label: "Soy cliente", href: "#clientes" },
+  { label: "Soy colaborador", href: "#nexus" },
+  { label: "Soy proveedor", href: "#proveedores" },
+  { label: "Busco empleo", href: "#careers" },
+];
+
+const serviceFeatures = [
+  { icon: ShieldAlert, text: "Reporte de fallas críticas 24x7 con el NOC" },
+  { icon: ClipboardList, text: "Apertura y seguimiento de casos" },
+  { icon: BookOpen, text: "Historial, reportes y base de conocimiento" },
+];
 
 const portals = [
   {
-    icon: Network,
+    id: "nexus",
+    eyebrow: "Colaboradores",
     title: "OSC Nexus",
-    subtitle: "Intranet Corporativa",
-    description: "Portal interno para colaboradores de OSC. Accede a recursos, comunicados internos, herramientas de gestión y la comunidad OSC.",
+    description:
+      "Portal interno para colaboradores de OSC: recursos, comunicados internos, herramientas de gestión y la comunidad OSC.",
     features: [
       "Documentos y políticas corporativas",
       "Comunicados y novedades internas",
@@ -22,155 +41,194 @@ const portals = [
     ],
     cta: "Acceder a Nexus",
     href: "https://intranet.osctopsolutionsgroup.com/",
-    color: "#FF0057",
   },
   {
-    icon: Truck,
+    id: "proveedores",
+    eyebrow: "Proveedores",
     title: "Supplier Connection",
-    subtitle: "Portal de Proveedores",
-    description: "Plataforma para proveedores y socios tecnológicos de OSC. Gestión de contratos, documentación y comunicación directa.",
+    description:
+      "Plataforma para proveedores y socios tecnológicos de OSC: contratos, documentación y comunicación directa.",
     features: [
       "Registro y homologación de proveedores",
       "Gestión de órdenes de compra",
       "Documentación contractual",
       "Seguimiento de pagos y facturas",
     ],
-    cta: "Portal Proveedores",
+    cta: "Portal de proveedores",
     href: "https://portal-proveedores.osctopsolutionsgroup.com/",
-    color: "#0F172A",
   },
   {
-    icon: Users,
+    id: "careers",
+    eyebrow: "Talento",
     title: "Careers",
-    subtitle: "Únete a OSC",
-    description: "Construya su carrera en la empresa que lidera la transformación tecnológica de infraestructuras críticas en América.",
-    features: [
-      "Oportunidades en 16 países",
-      "Desarrollo profesional acelerado",
-      "Cultura de innovación continua",
-      "Beneficios competitivos regionales",
-    ],
-    cta: "Ver oportunidades",
+    description:
+      "Construya su carrera en la empresa que lidera la transformación tecnológica de infraestructuras críticas en América.",
+    features: ["Oportunidades en 16 países", "Desarrollo profesional acelerado"],
+    cta: "Ver vacantes",
     href: "https://osctopsolutionsgroup.zohorecruit.com/jobs/Careers",
-    color: "#FF0057",
   },
 ];
+
+const gridBg = {
+  backgroundImage:
+    "linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px)",
+  backgroundSize: "56px 56px",
+};
 
 export default function OscConnectPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative pt-40 pb-10 overflow-hidden bg-white grid-bg">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(ellipse at center, rgba(0,0,134,0.05) 0%, transparent 65%)", transform: "translate(20%,-20%)" }} />
-        <div className="relative max-w-7xl mx-auto px-6">
-          <AnimatedSection>
-            <h1 className="text-5xl lg:text-7xl font-bold text-[#0F172A] max-w-3xl mb-6">
-              El ecosistema digital{" "}
-              <span className="text-gradient">de OSC</span>
-            </h1>
-            <p className="text-[#475569] text-xl font-light max-w-2xl">
-              Tres portales diseñados para conectar a colaboradores,
-              proveedores y talentos con el mundo OSC.
-            </p>
-          </AnimatedSection>
+      <section className="bg-[#0b1030] text-white pt-40 pb-[270px]" style={gridBg}>
+        <div className="max-w-[1200px] mx-auto px-6 flex flex-col items-center text-center gap-[22px]">
+          <span className="rounded-full border border-white/[0.22] px-4 py-[7px] text-xs font-semibold tracking-[0.18em] text-slate-300">
+            ● OSC CONNECT
+          </span>
+          <h1 className="m-0 font-extrabold leading-[1.06] tracking-[-0.02em] text-[clamp(38px,4.6vw,62px)]">
+            El ecosistema digital <span className="text-[#ff2d74]">de OSC</span>
+          </h1>
+          <p className="m-0 text-lg leading-[1.6] text-slate-300 max-w-[680px]">
+            Cuatro portales para conectar a clientes, colaboradores, proveedores y talento con el
+            mundo OSC. Elija el suyo.
+          </p>
+          <nav aria-label="Portales" className="flex flex-wrap justify-center gap-2.5 mt-1.5">
+            {audiences.map((a, i) => (
+              <a
+                key={a.href}
+                href={a.href}
+                className={`rounded-full text-sm font-semibold no-underline transition-colors ${
+                  i === 0
+                    ? "bg-white text-[#000086] px-5 py-[11px] hover:bg-white/90"
+                    : "border border-white/40 text-white px-5 py-2.5 hover:bg-white/10"
+                }`}
+              >
+                {a.label}
+              </a>
+            ))}
+          </nav>
         </div>
       </section>
 
-      {/* Portals */}
-      <section className="pt-10 pb-24 bg-white relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: "radial-gradient(circle, rgba(0,0,134,0.04) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-        <div className="relative max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-3 gap-7">
-            {portals.map((portal, i) => (
-              <AnimatedSection key={portal.title} delay={i * 0.15}>
-                <div className="group relative bg-white rounded-3xl border border-gray-100 hover:border-gray-200 hover:shadow-2xl transition-all duration-500 overflow-hidden flex flex-col h-full cursor-pointer">
-
-                  {/* Top accent */}
-                  <div
-                    className="absolute top-0 left-0 right-0 h-[3px] rounded-t-3xl"
-                    style={{ background: `linear-gradient(90deg, ${portal.color} 0%, ${portal.color}55 60%, transparent 100%)` }}
-                  />
-
-                  {/* Ghost icon watermark */}
-                  <div
-                    className="absolute bottom-0 right-0 pointer-events-none"
-                    style={{ color: `${portal.color}07`, transform: "translate(20%, 20%)" }}
-                  >
-                    <portal.icon size={180} />
-                  </div>
-
-                  {/* Header */}
-                  <div className="relative px-8 pt-10 pb-8">
-                    {/* Subtitle pill */}
-                    <span
-                      className="inline-block text-[10px] font-black uppercase tracking-[0.12em] px-3 py-1.5 rounded-full mb-4"
-                      style={{ background: `${portal.color}10`, color: portal.color, border: `1px solid ${portal.color}20` }}
-                    >
-                      {portal.subtitle}
+      {/* Portales */}
+      <section className="relative pb-24">
+        {/* El blanco arranca bajo el hero para que el azul oscuro quede detrás de la tarjeta */}
+        <div className="absolute inset-x-0 bottom-0 top-[210px] bg-white" aria-hidden="true" />
+        <div className="relative max-w-[1200px] mx-auto px-6 -mt-[210px] flex flex-col gap-6">
+          {/* Centro de Servicio al Cliente */}
+          <AnimatedSection direction="none">
+            <article
+              id="clientes"
+              className="scroll-mt-28 relative overflow-hidden rounded-3xl text-white p-6 sm:p-12 shadow-[0_30px_60px_rgba(0,0,60,0.3)] ring-1 ring-white/10"
+              style={{
+                background:
+                  "radial-gradient(ellipse 60% 80% at 100% 0%, rgba(99,102,255,0.28) 0%, transparent 60%), linear-gradient(135deg, #000086 0%, #00005e 100%)",
+              }}
+            >
+              <div
+                className="absolute inset-x-0 top-0 h-[3px]"
+                style={{ background: "linear-gradient(90deg, #e6004f 0%, #e6004f 18%, transparent 60%)" }}
+                aria-hidden="true"
+              />
+              <div className="relative grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-16 items-center">
+                <div className="flex flex-col gap-5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold tracking-[0.2em] text-[#c7cbff]">
+                      CLIENTES
                     </span>
-
-                    {/* Title */}
-                    <h2 className="text-2xl font-bold text-[#0F172A] mb-3 group-hover:text-[#0F172A] leading-snug">
-                      {portal.title}
-                    </h2>
-
-                    {/* Description */}
-                    <p className="text-slate-400 text-sm font-light leading-relaxed">
-                      {portal.description}
-                    </p>
+                    <span className="bg-[#e6004f] text-[11px] font-bold tracking-wide px-2.5 py-1 rounded-full">
+                      NUEVO
+                    </span>
                   </div>
-
-                  {/* Divider */}
-                  <div className="mx-8 h-px bg-gradient-to-r from-gray-100 via-gray-100 to-transparent" />
-
-                  {/* Features */}
-                  <div className="relative px-8 py-7 flex-1 flex flex-col">
-                    <ul className="space-y-3.5 flex-1 mb-8">
-                      {portal.features.map((f) => (
-                        <li key={f} className="flex items-center gap-3 text-sm text-slate-500">
-                          <span
-                            className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                            style={{ background: `${portal.color}12` }}
-                          >
-                            <span
-                              className="w-1.5 h-1.5 rounded-full"
-                              style={{ background: portal.color }}
-                            />
-                          </span>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA */}
-                    <a
-                      href={portal.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 group-hover:shadow-lg"
-                      style={{
-                        background: `linear-gradient(135deg, ${portal.color} 0%, ${portal.color}cc 100%)`,
-                        color: "white",
-                        boxShadow: `0 4px 20px ${portal.color}25`,
-                      }}
+                  <h2 className="m-0 font-bold leading-[1.1] tracking-[-0.01em] text-[clamp(28px,3vw,40px)]">
+                    Centro de Servicio al Cliente
+                  </h2>
+                  <p className="m-0 text-base leading-[1.7] text-[#dfe2ff] max-w-[520px]">
+                    Para empresas con servicios activos de OSC. Reporte incidentes, abra solicitudes
+                    y siga sus casos desde el canal que prefiera: todo llega al mismo caso.
+                  </p>
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    <Link
+                      href={SERVICE_CENTER_URL}
+                      className="inline-flex items-center gap-2 bg-[#e6004f] hover:bg-[#c20043] text-white no-underline font-semibold text-[15px] px-7 py-3.5 rounded-full shadow-lg shadow-[#e6004f]/25 transition-colors"
                     >
-                      {portal.cta}
-                      <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform duration-200" />
-                    </a>
+                      Ir al Centro de Servicio <ArrowRight size={16} />
+                    </Link>
+                    <Link
+                      href={SERVICE_CASE_URL}
+                      className="inline-flex items-center border border-white/40 hover:bg-white/10 text-white no-underline font-semibold text-[15px] px-6 py-[13px] rounded-full transition-colors"
+                    >
+                      Consultar un caso
+                    </Link>
                   </div>
                 </div>
+
+                <ul className="m-0 p-0 list-none flex flex-col gap-3">
+                  {serviceFeatures.map((f) => (
+                    <li
+                      key={f.text}
+                      className="flex items-center gap-4 rounded-2xl border border-white/[0.14] bg-white/[0.06] backdrop-blur-sm px-5 py-4"
+                    >
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white">
+                        <f.icon size={20} strokeWidth={1.75} />
+                      </span>
+                      <span className="text-[15px] font-medium leading-snug">{f.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          </AnimatedSection>
+
+          {/* Colaboradores · Proveedores · Talento */}
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6">
+            {portals.map((p, i) => (
+              <AnimatedSection key={p.id} delay={i * 0.12}>
+                <article
+                  id={p.id}
+                  className="scroll-mt-28 h-full bg-white border border-slate-200 rounded-[20px] p-8 flex flex-col gap-3.5"
+                >
+                  <span className="text-xs font-semibold tracking-[0.16em] text-slate-600 uppercase">
+                    {p.eyebrow}
+                  </span>
+                  <h2 className="m-0 text-2xl font-bold text-[#0f172a]">{p.title}</h2>
+                  <p className="m-0 text-[15px] leading-[1.6] text-slate-600">{p.description}</p>
+                  <ul className="m-0 p-0 list-none flex flex-col gap-2 text-sm text-slate-700 flex-1">
+                    {p.features.map((f) => (
+                      <li key={f}>✓ {f}</li>
+                    ))}
+                  </ul>
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="self-start border-2 border-[#000086] text-[#000086] hover:text-[#e6004f] hover:border-[#e6004f] no-underline font-semibold text-sm px-5 py-[11px] rounded-full transition-colors"
+                  >
+                    {p.cta} →
+                  </a>
+                </article>
               </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
 
+      {/* CTA final */}
+      <section className="border-t border-slate-200 bg-[#f5f6fb]">
+        <div className="max-w-[1200px] mx-auto px-6 py-14 flex flex-wrap items-center justify-between gap-6">
+          <div className="flex flex-col gap-1.5">
+            <strong className="text-[22px] text-[#0f172a]">¿Aún no es cliente de OSC?</strong>
+            <span className="text-[15px] text-slate-600">
+              Hable con un experto sobre su próximo proyecto.
+            </span>
+          </div>
+          <Link
+            href="/contacto"
+            className="bg-[#e6004f] hover:bg-[#c20043] text-white no-underline font-semibold px-[26px] py-3.5 rounded-full transition-colors"
+          >
+            Ir a Contacto →
+          </Link>
+        </div>
+      </section>
     </>
   );
 }
