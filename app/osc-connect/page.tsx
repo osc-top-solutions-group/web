@@ -9,9 +9,8 @@ export const metadata: Metadata = {
     "El ecosistema digital de OSC: Centro de Servicio al Cliente, OSC Nexus, Supplier Connection y Careers.",
 };
 
-/* TODO: reemplazar por las URLs reales del Centro de Servicio cuando estén publicadas. */
-const SERVICE_CENTER_URL = "/contacto";
-const SERVICE_CASE_URL = "/contacto";
+const SERVICE_CENTER_URL = "/osc-connect/centro-de-servicio";
+const SERVICE_CASE_URL = "/osc-connect/centro-de-servicio#consultar";
 
 const audiences = [
   { label: "Soy cliente", href: "#clientes" },
