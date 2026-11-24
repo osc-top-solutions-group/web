@@ -137,6 +137,25 @@ if (Existe-Gcloud @("secrets", "describe", $secretoToken, "--project", $Project)
   Write-Warning "No existe el secreto ${secretoToken}; el asistente no recibirá el token de origen (ver repo del agente, infra\aprovisionar.ps1)."
 }
 
+# Mesa de servicio (OSC One): formulario de casos y consulta de casos del Centro de Servicio
+# (lib/esm.ts). La web llama al canal /api/intake de la mesa con la clave del canal, que vive en
+# Secret Manager del proyecto de datos de la mesa. Por ahora solo QA: en producción el canal de
+# la mesa aún no está publicado, y sin estas variables los formularios responden 503 con el
+# canal alterno (nunca simulan que el caso quedó creado).
+if ($Entorno -ne "prod") {
+  $esmProyecto = "esm-osc-one"
+  $esmSecreto  = "esm-intake-api-key-$Entorno"
+  if (Existe-Gcloud @("secrets", "describe", $esmSecreto, "--project", $esmProyecto)) {
+    $vars += "ESM_INTAKE_URL=https://esm-$Entorno.$Dominio/api/intake"
+    gcloud secrets add-iam-policy-binding $esmSecreto --project $esmProyecto `
+      --member "serviceAccount:$sa" --role roles/secretmanager.secretAccessor --quiet | Out-Null
+    $esmNumero = gcloud projects describe $esmProyecto --format "value(projectNumber)"
+    $secretos += ",ESM_INTAKE_KEY=projects/$esmNumero/secrets/${esmSecreto}:latest"
+  } else {
+    Write-Warning "No existe el secreto ${esmSecreto} en ${esmProyecto}: el Centro de Servicio quedará sin conexión a la mesa."
+  }
+}
+
 # QA: nadie entra sin pasar por el balanceador + IAP (solo el agente de IAP invoca).
 # Prod: público, como hoy (invoker IAM desactivado; la política de la organización
 # no admite allUsers, por eso no se usa --allow-unauthenticated).

@@ -43,6 +43,14 @@ Deny-all no limita a esta aplicación: el Admin SDK omite las reglas por diseño
 | `POST /api/subscribe` | Pública. 409 si el correo ya existe |
 | `GET /api/subscribe` | `Authorization: Bearer $ADMIN_SECRET` |
 | `GET /api/vcard/mauricio-rubio` | Pública, contenido estático |
+| `POST /api/caso` | Pública. Abre un caso de cliente en la mesa de servicio (OSC One) y devuelve su número. Validación en `lib/forms.ts` |
+| `POST /api/caso/consulta/codigo` | Pública. Pide a la mesa el código de verificación; responde igual exista o no el caso |
+| `POST /api/caso/consulta/verificar` | Pública. Valida el código y deja la sesión de consulta en una cookie httpOnly (30 min) |
+| `GET` / `DELETE /api/caso/consulta` | Sesión de consulta. Casos del correo verificado (`?caso=` para uno) / cerrar la sesión |
+
+### Centro de Servicio al Cliente ↔ mesa de servicio
+
+`/osc-connect/centro-de-servicio` abre y consulta casos en la mesa (OSC One / ESM) a través de `lib/esm.ts`: los handlers `/api/caso/*` llaman al canal `/api/intake` de la mesa servidor-a-servidor con la clave del canal, que nunca llega al navegador. La consulta pide el número de caso y un código que la mesa envía al correo registrado en el caso; con él se ve el caso, su conversación e historial y el resto de casos del mismo correo (`/osc-connect/centro-de-servicio/casos`, bajo CSP estricta). La mesa aún no recibe archivos por este canal, por eso el formulario no los pide. Si la mesa no responde, el formulario muestra el error y el canal alterno: nunca simula que el caso quedó creado.
 
 El `GET` administrativo lee el secreto de la cabecera y **no** de la query string: los parámetros de URL quedan escritos de forma permanente en los logs del balanceador y de Cloud Run.
 
@@ -88,6 +96,8 @@ La función corre con `sa-notificaciones-web@` (roles: `datastore.user`, `eventa
 | `GOOGLE_CLOUD_PROJECT` | No | Por defecto `intranet-428417`. En Cloud Run se detecta solo |
 | `ADMIN_SECRET` | Solo para `GET /api/subscribe` | Sin ella el endpoint responde 503. Secreto `web-corporativa-admin-secret[-qa]` |
 | `AGENTE_API_ORIGIN` | Solo si el widget del asistente está activo | Origen del orquestador al que `proxy.ts` reenvía `/agente-api/*` en runtime (`https://agente[-qa].osctopsolutionsgroup.com`). Vacía: el widget recibe 503 |
+| `ESM_INTAKE_URL` | Solo para el Centro de Servicio | Base del canal de la mesa (`https://esm-qa.osctopsolutionsgroup.com/api/intake`). `deploy.ps1` la fija solo en QA. Vacía: `/api/caso/*` responde 503 |
+| `ESM_INTAKE_KEY` | Solo para el Centro de Servicio | Secreto `esm-intake-api-key[-qa]` del proyecto `esm-osc-one` (`deploy.ps1` da el acceso a la cuenta de servicio de la web) |
 
 Y tres que **no son de runtime** sino de construcción (`ARG` del `Dockerfile`, resueltas en `next build`; ver § Ambientes):
 

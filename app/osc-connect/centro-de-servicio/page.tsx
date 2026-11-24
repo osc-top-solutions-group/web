@@ -80,7 +80,7 @@ const channels = [
     icon: FileText,
     title: "Formulario de caso",
     tag: "24/7 · respuesta según severidad",
-    text: "Para solicitudes con detalle técnico, sitio afectado y archivos adjuntos.",
+    text: "Para solicitudes con detalle técnico, sitio y servicio afectado. Recibe el número de caso al instante.",
     cta: "Abrir un caso",
     href: "#formulario",
   },
@@ -96,7 +96,7 @@ const channels = [
 
 const steps = [
   { title: "Usted elige el canal", text: "OSCAR, formulario, correo, NOC o portal." },
-  { title: "Se crea un caso único", text: "Recibe un número OSC-###### por correo." },
+  { title: "Se crea un caso único", text: "Recibe su número de caso por correo." },
   { title: "Se clasifica por severidad", text: "P1 a P4 define el tiempo de respuesta." },
   { title: "Lo atiende un especialista", text: "Del equipo de la solución contratada." },
   { title: "Cierre y encuesta", text: "Usted confirma la solución y califica la atención." },
@@ -120,7 +120,7 @@ const chat = [
   { me: true, t: "Soy cliente. Una cámara del perímetro no transmite desde esta mañana." },
   { me: false, t: "Entendido. ¿En qué sitio está y está afectando la operación?" },
   { me: true, t: "Subestación Norte. Otras cámaras cubren la zona." },
-  { me: false, t: "Registré el caso OSC-[NÚMERO] con severidad P3. Le envié la confirmación a su correo; un especialista lo contactará dentro del tiempo acordado." },
+  { me: false, t: "Registré el caso SAC-[NÚMERO] con severidad P3. Le envié la confirmación a su correo; un especialista lo contactará dentro del tiempo acordado." },
 ];
 
 const gridBg = {

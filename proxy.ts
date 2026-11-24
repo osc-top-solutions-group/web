@@ -48,8 +48,10 @@ const MARKETING_PREFIXES = [
  * Excepciones que SIEMPRE son estrictas aunque un prefijo de marketing las
  * cubra: artículos que renderizan HTML de WordPress con dangerouslySetInnerHTML.
  * (El listado /beyond-tech/blog no renderiza contenido externo y es marketing.)
+ * Y la consulta de casos del Centro de Servicio, que muestra datos del cliente
+ * (texto de sus casos) traídos de la mesa de servicio.
  */
-const STRICT_OVERRIDES = ["/beyond-tech/blog/"];
+const STRICT_OVERRIDES = ["/beyond-tech/blog/", "/osc-connect/centro-de-servicio/casos"];
 
 function isStrictRoute(pathname: string): boolean {
   if (STRICT_OVERRIDES.some((p) => pathname.startsWith(p))) return true;

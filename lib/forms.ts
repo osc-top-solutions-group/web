@@ -255,6 +255,124 @@ export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInp
   };
 }
 
+/* ── Centro de Servicio al Cliente (casos en la mesa de servicio OSC One) ── */
+
+/** Código ISO-3166 de cada país de `COUNTRIES`: es lo que recibe la mesa de servicio. */
+export const COUNTRY_ISO: Record<(typeof COUNTRIES)[number], string> = {
+  Argentina: "AR", Bolivia: "BO", Brasil: "BR", Chile: "CL", Colombia: "CO",
+  "Costa Rica": "CR", Ecuador: "EC", "El Salvador": "SV", "Estados Unidos": "US",
+  Guatemala: "GT", Honduras: "HN", "México": "MX", Nicaragua: "NI", "Panamá": "PA",
+  "Perú": "PE", Uruguay: "UY",
+};
+
+/**
+ * Severidad que declara el cliente. Es la fuente de verdad del formulario y del
+ * servidor; la mesa la recibe como urgencia y el especialista fija la prioridad final.
+ */
+export const SEVERIDADES = [
+  { codigo: "P1", etiqueta: "Crítico", urgencia: "critica" },
+  { codigo: "P2", etiqueta: "Alto", urgencia: "alta" },
+  { codigo: "P3", etiqueta: "Medio", urgencia: "media" },
+  { codigo: "P4", etiqueta: "Bajo", urgencia: "baja" },
+] as const;
+
+/** Mínimo que exige la mesa para la descripción de un caso. */
+export const CASO_DESCRIPCION_MIN = 10;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+/** Número de caso como lo escribe una persona: prefijo opcional y número (SAC-000123, pqr 12, 45). */
+const CASO_RE = /^(?:[A-Za-z]{2,5}[-\s]?)?\d{1,6}$/;
+
+export interface CasoInput {
+  nombre: string;
+  empresa: string;
+  email: string;
+  telefono: string | null;
+  pais: string;
+  /** ISO-3166 de `pais`. */
+  paisIso: string;
+  contrato: string | null;
+  servicio: string;
+  severidad: (typeof SEVERIDADES)[number];
+  descripcion: string;
+  /** Identificador del envío (lo genera el formulario al montarse): un reintento no abre otro caso. */
+  envioId: string;
+}
+
+/** Valida el cuerpo de `POST /api/caso`. */
+export function validateCaso(body: unknown): Validated<CasoInput> {
+  if (!body || typeof body !== "object") return { ok: false, error: "Cuerpo de la petición inválido" };
+  const b = body as Record<string, unknown>;
+
+  const nombre = required(b.nombre, "nombre", MAX.nombre);
+  if (!nombre.ok) return nombre;
+  if (nombre.value.length < 2) return { ok: false, error: 'El campo "nombre" es demasiado corto' };
+
+  const empresa = required(b.empresa, "empresa", MAX.empresa);
+  if (!empresa.ok) return empresa;
+
+  const mail = email(b.email);
+  if (!mail.ok) return mail;
+  // La mesa admite hasta 120 caracteres de correo.
+  if (mail.value.length > 120) return { ok: false, error: "El correo excede la longitud permitida" };
+
+  const telefono = optional(b.telefono, "telefono", MAX.telefono);
+  if (!telefono.ok) return telefono;
+
+  const pais = text(b.pais);
+  if (!pais) return { ok: false, error: 'El campo "país" es obligatorio' };
+  if (!(COUNTRIES as readonly string[]).includes(pais)) return { ok: false, error: "El país seleccionado no es válido" };
+
+  const contrato = optional(b.contrato, "contrato", 80);
+  if (!contrato.ok) return contrato;
+
+  const servicio = required(b.servicio, "servicio afectado", 120);
+  if (!servicio.ok) return servicio;
+
+  const severidad = SEVERIDADES.find((s) => s.codigo === text(b.severidad));
+  if (!severidad) return { ok: false, error: "La severidad seleccionada no es válida" };
+
+  const descripcion = required(b.descripcion, "descripción", MAX.mensaje, true);
+  if (!descripcion.ok) return descripcion;
+  if (descripcion.value.length < CASO_DESCRIPCION_MIN) {
+    return { ok: false, error: `Describa el caso con al menos ${CASO_DESCRIPCION_MIN} caracteres` };
+  }
+
+  const envioId = text(b.envioId);
+  if (!envioId || !UUID_RE.test(envioId)) return { ok: false, error: "Recargue la página e intente de nuevo" };
+
+  return {
+    ok: true,
+    value: {
+      nombre: nombre.value,
+      empresa: empresa.value,
+      email: mail.value,
+      telefono: telefono.value,
+      pais,
+      paisIso: COUNTRY_ISO[pais as (typeof COUNTRIES)[number]],
+      contrato: contrato.value,
+      servicio: servicio.value,
+      severidad,
+      descripcion: descripcion.value,
+      envioId: envioId.toLowerCase(),
+    },
+  };
+}
+
+/** Número de caso de una consulta (`SAC-000123`), normalizado a mayúsculas y sin espacios sobrantes. */
+export function validateNumeroCaso(raw: unknown): Validated<string> {
+  const v = line(raw);
+  if (!v || !CASO_RE.test(v)) return { ok: false, error: "Escriba el número de caso tal como llegó en el correo (por ejemplo, SAC-000123)" };
+  return { ok: true, value: v.toUpperCase() };
+}
+
+/** Código de verificación de 6 dígitos que llega al correo registrado en el caso. */
+export function validateCodigoConsulta(raw: unknown): Validated<string> {
+  const v = line(raw)?.replace(/\s+/g, "");
+  if (!v || !/^\d{6}$/.test(v)) return { ok: false, error: "El código tiene 6 dígitos" };
+  return { ok: true, value: v };
+}
+
 /* ── Anti-bots ─────────────────────────────────────────────────────────── */
 
 /**
