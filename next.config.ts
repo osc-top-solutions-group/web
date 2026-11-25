@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Reenvío de /agente-api/* al asistente (proxy.ts): el valor por defecto corta a los 30 s y un turno lento
+  // de NOVA (reintento del modelo) terminaba en error para el visitante aunque sí se hubiera procesado.
+  experimental: { proxyTimeout: 60_000 },
   async redirects() {
     return [
       /* ── Legacy slug redirects (Spanish canonical) ── */
