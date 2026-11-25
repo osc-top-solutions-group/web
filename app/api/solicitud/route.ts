@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateSolicitud, detectBot, CAMPOS_SOLICITUD, OPCIONES_SOLICITUD, type CampoSolicitud } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
 import { esm, MESA_NO_DISPONIBLE } from "@/lib/esm";
-import { evidenciaConsentimiento, resumenConsentimiento } from "@/lib/consentimiento-servidor";
+import { aceptacionParaRegistro, evidenciaConsentimiento } from "@/lib/consentimiento-servidor";
 
 /**
  * POST /api/solicitud — radica en la mesa de servicio (OSC One) una solicitud que
@@ -62,10 +62,11 @@ export async function POST(req: NextRequest) {
         ...s.datos,
         ...(s.telefono ? { telefono: s.telefono } : {}),
         ...(s.tipo.id === "certificado-laboral" ? { verificacion_directorio: "no_verificado" } : {}),
-        autorizacion_datos: resumenConsentimiento(acepta.evidencia),
         formulario_web: "Radicar una solicitud",
       },
       // Idempotencia: el mismo envío (reintento o doble clic) devuelve el mismo radicado.
+      // Evidencia de la aceptación: la mesa la guarda en su registro de aceptaciones, no en el caso.
+      aceptacion_datos: aceptacionParaRegistro(acepta.evidencia),
       referencia_externa: `web:${s.envioId}`,
     },
   });

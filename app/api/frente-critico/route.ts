@@ -3,7 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { envios, MODULOS } from "@/lib/firebase/server";
 import { validateFrenteCritico, detectBot } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
-import { evidenciaConsentimiento } from "@/lib/consentimiento-servidor";
+import { evidenciaConsentimiento, registrarAceptacionSinCaso } from "@/lib/consentimiento-servidor";
 
 /** POST /api/frente-critico — registra un lead en `formularios/web_frente_critico/envios`. */
 export async function POST(req: NextRequest) {
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
       meta: clientMeta(req),
     });
     console.log(`[frente-critico] envío registrado ${ref.id}`);
+    // La aceptación queda también en el registro único de la mesa de servicio (consulta de Legal).
+    await registrarAceptacionSinCaso(acepta.evidencia, { correo: valid.value.email, nombre: valid.value.nombre }, `web:frente-critico:${ref.id}`);
     // La notificación por correo la envía la Cloud Function
     // `notify-web-frente-critico` (trigger de Firestore sobre esta colección):
     // este servicio público no tiene permisos de Gmail.

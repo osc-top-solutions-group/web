@@ -110,6 +110,11 @@ function ipDelVisitante(xff: string | null): string | null {
 
 export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith(AGENTE_API_PREFIX)) {
+    // La aceptación de la política de datos la entrega el servidor (/api/nova/aceptacion), con la
+    // evidencia que él mismo arma: desde el navegador esta ruta no existe.
+    if (request.nextUrl.pathname.replace(/\/+$/, "") === "/agente-api/aceptacion") {
+      return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+    }
     const origin = (process.env.AGENTE_API_ORIGIN ?? "").replace(/\/+$/, "");
     if (!origin) {
       return NextResponse.json({ error: "Asistente no disponible" }, { status: 503 });

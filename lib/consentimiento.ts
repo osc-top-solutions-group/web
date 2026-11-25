@@ -7,8 +7,8 @@
  * Proveedores, `modules/aceptaciones/textos.js`).
  */
 
-/** Formularios públicos que recogen datos personales: ninguno se envía sin la casilla marcada. */
-export type FormularioConsentimiento = "solicitud" | "caso" | "contacto" | "frente-critico";
+/** Formularios públicos (y el chat de NOVA) que recogen datos personales: ninguno avanza sin la casilla marcada. */
+export type FormularioConsentimiento = "solicitud" | "caso" | "contacto" | "frente-critico" | "chat";
 
 export const RESPONSABLE_DATOS = "OSC Top Solutions Group";
 
@@ -18,6 +18,7 @@ export const FINALIDAD_DATOS: Record<FormularioConsentimiento, string> = {
   caso: "Autorizo el tratamiento de mis datos personales para atender este caso.",
   contacto: "Autorizo el tratamiento de mis datos personales para responder a este mensaje y contactarme.",
   "frente-critico": "Autorizo el tratamiento de mis datos personales para responder a esta consulta y contactarme.",
+  chat: "Autorizo el tratamiento de los datos personales que entregue en esta conversación para atender mis solicitudes.",
 };
 
 /** Lo mínimo de la política vigente que hace falta para nombrarla. */

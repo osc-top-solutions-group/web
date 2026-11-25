@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AlertCircle, ArrowRight, Loader2, RotateCcw, Send, X } from "lucide-react";
 import { EVENTO_ABRIR_NOVA } from "./AbrirNova";
-import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
+import { DeclaracionDatos, EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 /**
  * Widget del asistente virtual OSC (Fase 1), con el diseño de la mascota robot:
@@ -21,6 +21,11 @@ import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePol
  * El `session_id` lo genera el servidor y se conserva en sessionStorage: la
  * conversación sobrevive a la navegación entre páginas pero no a cerrar la
  * pestaña. "Nueva conversación" lo descarta.
+ *
+ * Política de tratamiento de datos: cuando la conversación va hacia una solicitud,
+ * el orquestador responde `requiere_aceptacion` y aquí aparece la casilla de la
+ * política vigente (la misma de los formularios). Sin marcarla NOVA no recibe datos
+ * ni radica; la aceptación se registra por /api/nova/aceptacion, no por el texto del chat.
  *
  * No hay operadores humanos: el asistente informa con la base de conocimiento
  * o radica la solicitud en la Mesa de Servicios (ESM) y devuelve el radicado.
@@ -78,6 +83,11 @@ export default function ChatWidget() {
   const [turnos, setTurnos] = useState<Turno[]>([{ rol: "agente", texto: SALUDO }]);
   const [mensaje, setMensaje] = useState("");
   const [estado, setEstado] = useState<"idle" | "enviando" | "error" | "cerrada">("idle");
+  // Casilla de la política de datos: visible mientras NOVA la esté pidiendo.
+  const [pideAceptacion, setPideAceptacion] = useState(false);
+  const [casilla, setCasilla] = useState(false);
+  const [aceptando, setAceptando] = useState(false);
+  const [errorAceptacion, setErrorAceptacion] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -115,7 +125,7 @@ export default function ChatWidget() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [turnos, abierto, estado]);
+  }, [turnos, abierto, estado, pideAceptacion]);
 
   useEffect(() => {
     if (abierto) inputRef.current?.focus();
@@ -163,7 +173,37 @@ export default function ChatWidget() {
     setTurnos([{ rol: "agente", texto: SALUDO }]);
     setEstado("idle");
     setMensaje("");
+    setPideAceptacion(false);
+    setCasilla(false);
+    setErrorAceptacion(null);
     inputRef.current?.focus();
+  };
+
+  // La persona marcó la casilla y pulsó "Continuar": se registra la aceptación y NOVA retoma la solicitud.
+  const aceptarPolitica = async () => {
+    const sesion = leerSesion();
+    if (!casilla || aceptando || !sesion) return;
+    setAceptando(true);
+    setErrorAceptacion(null);
+    try {
+      const res = await fetch("/api/nova/aceptacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ session_id: sesion, consentimiento: true, politicaSha256: politica?.sha256 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && typeof data.respuesta === "string") {
+        setTurnos((t) => [...t, { rol: "agente", texto: data.respuesta }]);
+        setPideAceptacion(false);
+        setCasilla(false);
+        inputRef.current?.focus();
+      } else {
+        setErrorAceptacion(typeof data.error === "string" ? data.error : "No pudimos registrar su aceptación. Intente de nuevo.");
+      }
+    } catch {
+      setErrorAceptacion("No hay conexión con el servidor. Intente de nuevo.");
+    }
+    setAceptando(false);
   };
 
   const enviar = async (e: React.FormEvent) => {
@@ -191,6 +231,8 @@ export default function ChatWidget() {
       if (res.ok && typeof data.respuesta === "string") {
         if (data.session_id) guardarSesion(data.session_id);
         setTurnos((t) => [...t, { rol: "agente", texto: data.respuesta }]);
+        setPideAceptacion(data.requiere_aceptacion === true);
+        if (data.requiere_aceptacion !== true) setCasilla(false);
         setEstado("idle");
       } else if (res.status === 429 && typeof data.respuesta === "string") {
         setTurnos((t) => [...t, { rol: "agente", texto: data.respuesta }]);
@@ -275,6 +317,35 @@ export default function ChatWidget() {
                 </div>
               </div>
             ))}
+            {pideAceptacion && estado !== "enviando" && (
+              <div className="rounded-2xl p-3 text-[13px] leading-relaxed" style={{ background: "#fff", border: "1px solid #C9C3FF", color: "#1f2340" }}>
+                <label className="flex cursor-pointer items-start gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={casilla}
+                    onChange={(e) => setCasilla(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0"
+                    style={{ accentColor: "#5B2BE0" }}
+                  />
+                  <span>
+                    <DeclaracionDatos formulario="chat" politica={politica} className="font-semibold underline underline-offset-2" />
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  onClick={aceptarPolitica}
+                  disabled={!casilla || aceptando}
+                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{ background: GRADIENTE }}
+                >
+                  {aceptando ? <Loader2 size={12} className="animate-spin" /> : null}
+                  Continuar
+                </button>
+                {errorAceptacion && (
+                  <p role="alert" className="m-0 mt-2 text-xs text-amber-700">{errorAceptacion}</p>
+                )}
+              </div>
+            )}
             {estado === "enviando" && (
               <div className="flex items-center gap-2 text-xs" style={{ color: "#6B6A99" }}>
                 <Loader2 size={12} className="animate-spin" />

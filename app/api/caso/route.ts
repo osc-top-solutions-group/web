@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateCaso, detectBot } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
 import { esm, MESA_NO_DISPONIBLE } from "@/lib/esm";
-import { evidenciaConsentimiento, resumenConsentimiento } from "@/lib/consentimiento-servidor";
+import { aceptacionParaRegistro, evidenciaConsentimiento } from "@/lib/consentimiento-servidor";
 
 /**
  * POST /api/caso — abre un caso de cliente en la mesa de servicio (OSC One).
@@ -48,10 +48,11 @@ export async function POST(req: NextRequest) {
         severidad: `${c.severidad.codigo} ${c.severidad.etiqueta}`,
         ...(c.contrato ? { contrato: c.contrato } : {}),
         ...(c.telefono ? { telefono: c.telefono } : {}),
-        autorizacion_datos: resumenConsentimiento(acepta.evidencia),
         formulario_web: "Centro de Servicio al Cliente",
       },
       // Idempotencia: el mismo envío (reintento o doble clic) devuelve el mismo caso.
+      // Evidencia de la aceptación: la mesa la guarda en su registro de aceptaciones, no en el caso.
+      aceptacion_datos: aceptacionParaRegistro(acepta.evidencia),
       referencia_externa: `web:${c.envioId}`,
     },
   });

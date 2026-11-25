@@ -3,7 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { envios, MODULOS } from "@/lib/firebase/server";
 import { validateContacto, detectBot } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
-import { evidenciaConsentimiento } from "@/lib/consentimiento-servidor";
+import { evidenciaConsentimiento, registrarAceptacionSinCaso } from "@/lib/consentimiento-servidor";
 
 /** POST /api/contacto — registra un lead en `formularios/web_contacto/envios`. */
 export async function POST(req: NextRequest) {
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
       meta: clientMeta(req),
     });
     console.log(`[contacto] envío registrado ${ref.id}`);
+    // La aceptación queda también en el registro único de la mesa de servicio (consulta de Legal).
+    await registrarAceptacionSinCaso(acepta.evidencia, { correo: valid.value.email, nombre: valid.value.nombre }, `web:contacto:${ref.id}`);
     // La notificación por correo la envía la Cloud Function `notify-web-contacto`
     // (trigger de Firestore): este servicio público no tiene permisos de Gmail.
     return NextResponse.json({ ok: true });

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { politicaDatos } from "@/lib/qualita";
 import { clientMeta } from "@/lib/request";
+import { esm } from "@/lib/esm";
 import { declaracionDatos, FALTA_CONSENTIMIENTO, type FormularioConsentimiento } from "@/lib/consentimiento";
 
 /**
@@ -73,10 +74,36 @@ export async function evidenciaConsentimiento(
   };
 }
 
-/** La evidencia en una sola línea, para el campo de texto del caso en la mesa de servicio. */
-export function resumenConsentimiento(e: EvidenciaConsentimiento): string {
-  const documento = e.documento
-    ? `Documento vigente: ${e.documento.codigo} versión ${e.documento.version} (sha256 ${e.documento.sha256})${e.confirmacionNavegador ? ", confirmado por el navegador" : ""}`
-    : "Documento vigente: no disponible al aceptar (QUALITA sin respuesta)";
-  return [`Aceptó: "${e.declaracion}"`, documento, `Fecha: ${e.fecha}`, `IP: ${e.ip ?? "desconocida"}`].join(" | ").slice(0, 2000);
+/**
+ * La evidencia como la recibe el registro de aceptaciones de la mesa de servicio
+ * (`aceptacion_datos` del canal de radicación, `lib/aceptaciones.js` de OSC One).
+ * Va al registro, no al caso: quien atiende el caso solo ve "Política aceptada: versión X, fecha".
+ */
+export function aceptacionParaRegistro(e: EvidenciaConsentimiento) {
+  return {
+    origen: e.formulario,
+    declaracion: e.declaracion,
+    documento: e.documento,
+    confirmacion_navegador: e.confirmacionNavegador,
+    fecha: e.fecha,
+    ip: e.ip,
+    user_agent: e.userAgent,
+  };
+}
+
+/**
+ * Deja en el registro de la mesa la aceptación de un formulario que no crea caso
+ * (Contacto, Frente Crítico). La evidencia ya quedó guardada con el contacto: si la
+ * mesa no responde, el envío no se pierde y el fallo queda en el log.
+ */
+export async function registrarAceptacionSinCaso(
+  e: EvidenciaConsentimiento,
+  titular: { correo: string; nombre: string },
+  referencia: string,
+): Promise<void> {
+  const r = await esm<{ id: string }>("/aceptaciones", {
+    method: "POST",
+    body: { canal: "formulario_web", referencia_externa: referencia.slice(0, 120), titular, aceptacion_datos: aceptacionParaRegistro(e) },
+  });
+  if (r.status !== 201) console.error(`[consentimiento] la mesa respondió ${r.status} al registrar la aceptación de ${referencia}`);
 }
