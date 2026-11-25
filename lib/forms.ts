@@ -7,6 +7,8 @@
  * MB llega hasta el driver de Firestore antes de fallar.
  */
 
+import { FALTA_CONSENTIMIENTO } from "./consentimiento";
+
 /** Países atendidos. Es la fuente de verdad: la usa el <select> y la valida el servidor. */
 export const COUNTRIES = [
   "Argentina", "Bolivia", "Brasil", "Chile", "Colombia",
@@ -109,6 +111,8 @@ export interface ContactoInput {
   telefono: string | null;
   pais: string;
   mensaje: string | null;
+  /** Aceptación de la política de tratamiento de datos. Siempre `true` si el envío es válido. */
+  consentimiento: true;
 }
 
 /**
@@ -146,6 +150,9 @@ export function validateContacto(body: unknown): Validated<ContactoInput> {
     return { ok: false, error: "El país seleccionado no es válido" };
   }
 
+  // Sin la casilla de la política de datos marcada no se guarda el mensaje.
+  if (b.consentimiento !== true) return { ok: false, error: FALTA_CONSENTIMIENTO };
+
   return {
     ok: true,
     value: {
@@ -156,6 +163,7 @@ export function validateContacto(body: unknown): Validated<ContactoInput> {
       telefono: telefono.value,
       pais,
       mensaje: mensaje.value,
+      consentimiento: true,
     },
   };
 }
@@ -176,7 +184,7 @@ export interface FrenteCriticoInput {
   sector: string;
   horizonte: string;
   prioridad: string;
-  /** Evidencia de la autorización de contacto (Ley 1581 / Habeas Data). Siempre `true` si el envío es válido. */
+  /** Aceptación de la política de tratamiento de datos (Ley 1581 / Habeas Data). Siempre `true` si el envío es válido. */
   consentimiento: true;
 }
 
@@ -235,7 +243,7 @@ export function validateFrenteCritico(body: unknown): Validated<FrenteCriticoInp
   // El checkbox es obligatorio en el cliente, pero la evidencia legal de la
   // autorización se guarda en el servidor: solo se acepta el booleano `true`.
   if (b.consentimiento !== true) {
-    return { ok: false, error: "Necesitamos su autorización para poder contactarle" };
+    return { ok: false, error: FALTA_CONSENTIMIENTO };
   }
 
   return {
@@ -337,6 +345,9 @@ export function validateCaso(body: unknown): Validated<CasoInput> {
   if (descripcion.value.length < CASO_DESCRIPCION_MIN) {
     return { ok: false, error: `Describa el caso con al menos ${CASO_DESCRIPCION_MIN} caracteres` };
   }
+
+  // Sin la casilla de la política de datos marcada no se abre el caso.
+  if (b.consentimiento !== true) return { ok: false, error: FALTA_CONSENTIMIENTO };
 
   const envioId = text(b.envioId);
   if (!envioId || !UUID_RE.test(envioId)) return { ok: false, error: "Recargue la página e intente de nuevo" };
@@ -524,7 +535,7 @@ export function validateSolicitud(body: unknown): Validated<SolicitudInput> {
 
   // La autorización de tratamiento de datos se valida en el servidor: solo vale el booleano `true`.
   if (b.consentimiento !== true) {
-    return { ok: false, error: "Necesitamos su autorización de tratamiento de datos para radicar la solicitud" };
+    return { ok: false, error: FALTA_CONSENTIMIENTO };
   }
 
   const envioId = text(b.envioId);

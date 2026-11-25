@@ -12,7 +12,7 @@ import {
   CASO_DESCRIPCION_MIN,
   type CampoSolicitud,
 } from "@/lib/forms";
-import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
+import { DeclaracionDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 /*
  * Formulario general de solicitudes: el visitante elige qué necesita y el
@@ -77,7 +77,7 @@ export function SolicitudForm() {
       const res = await fetch("/api/solicitud", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: tipo.id, ...base, ...propios, consentimiento, [HONEYPOT_FIELD]: honeypot, ...sesion }),
+        body: JSON.stringify({ tipo: tipo.id, ...base, ...propios, consentimiento, politicaSha256: politica?.sha256, [HONEYPOT_FIELD]: honeypot, ...sesion }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) setError(data?.error ?? "No pudimos radicar la solicitud. Por favor intente de nuevo.");
@@ -250,8 +250,7 @@ export function SolicitudForm() {
               className="mt-1 h-4 w-4 shrink-0 accent-[#000086]"
             />
             <span>
-              Autorizo a OSC Top Solutions Group a tratar mis datos personales para atender esta solicitud, según su{" "}
-              <EnlacePoliticaDatos politica={politica} className="font-semibold text-[#000086] underline underline-offset-2 hover:text-[#e6004f]" />. *
+              <DeclaracionDatos formulario="solicitud" politica={politica} className="font-semibold text-[#000086] underline underline-offset-2 hover:text-[#e6004f]" /> *
             </span>
           </label>
 

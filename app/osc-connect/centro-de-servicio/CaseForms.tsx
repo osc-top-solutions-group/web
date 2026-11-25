@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, KeyRound, Search } from "lucide-react";
 import { COUNTRIES, HONEYPOT_FIELD, SEVERIDADES, CASO_DESCRIPCION_MIN } from "@/lib/forms";
+import { DeclaracionDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 /*
  * Formularios del Centro de Servicio al Cliente, conectados a la mesa de
@@ -189,6 +190,9 @@ const FORM_VACIO = {
 export function CaseForm() {
   const [form, setForm] = useState(FORM_VACIO);
   const [severidad, setSeveridad] = useState<string>("P3");
+  // Sin aceptar la política de datos vigente (QUALITA) no se abre el caso.
+  const [consentimiento, setConsentimiento] = useState(false);
+  const politica = usePoliticaDatos();
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creado, setCreado] = useState<{ caso: string | null; email: string } | null>(null);
@@ -205,7 +209,7 @@ export function CaseForm() {
     if (enviando) return;
     setEnviando(true);
     setError(null);
-    const r = await enviar("/api/caso", { ...form, severidad, [HONEYPOT_FIELD]: honeypot, ...sesion });
+    const r = await enviar("/api/caso", { ...form, severidad, consentimiento, politicaSha256: politica?.sha256, [HONEYPOT_FIELD]: honeypot, ...sesion });
     setEnviando(false);
     if (!r.ok) return setError(r.error);
     setCreado({ caso: typeof r.data.caso === "string" ? r.data.caso : null, email: form.email });
@@ -229,6 +233,7 @@ export function CaseForm() {
             setCreado(null);
             setForm(FORM_VACIO);
             setSeveridad("P3");
+            setConsentimiento(false);
             setSesion({ iniciadoEn: Date.now(), envioId: crypto.randomUUID() });
           }}
           className="mt-5 text-sm font-semibold text-[#000086] underline underline-offset-2 hover:text-[#e6004f]"
@@ -324,6 +329,19 @@ export function CaseForm() {
           Si necesitamos capturas o logs, el especialista se los pedirá por correo al atender el caso.
         </p>
       </div>
+
+      <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-slate-600">
+        <input
+          type="checkbox"
+          required
+          checked={consentimiento}
+          onChange={(e) => setConsentimiento(e.target.checked)}
+          className="mt-1 h-4 w-4 shrink-0 accent-[#000086]"
+        />
+        <span>
+          <DeclaracionDatos formulario="caso" politica={politica} className="font-semibold text-[#000086] underline underline-offset-2 hover:text-[#e6004f]" /> *
+        </span>
+      </label>
 
       {/* Honeypot: fuera de la vista y del orden de tabulación; un humano nunca lo llena. */}
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateSolicitud, detectBot, CAMPOS_SOLICITUD, OPCIONES_SOLICITUD, type CampoSolicitud } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
 import { esm, MESA_NO_DISPONIBLE } from "@/lib/esm";
-import { politicaDatos } from "@/lib/qualita";
+import { evidenciaConsentimiento, resumenConsentimiento } from "@/lib/consentimiento-servidor";
 
 /**
  * POST /api/solicitud — radica en la mesa de servicio (OSC One) una solicitud que
@@ -41,8 +41,10 @@ export async function POST(req: NextRequest) {
   }
   partes.push('Radicado desde el formulario "Radicar una solicitud" de la web corporativa.');
 
-  // Qué política autorizó: la versión vigente en QUALITA al radicar (código, versión y huella del PDF).
-  const politica = await politicaDatos();
+  // Aceptación de la política de datos: sin ella no se radica. Queda qué versión vigente
+  // en QUALITA aceptó (código, versión y huella del PDF), el texto de la casilla, cuándo y desde dónde.
+  const acepta = await evidenciaConsentimiento(req, parsed.body, "solicitud");
+  if (!acepta.ok) return NextResponse.json({ error: acepta.error }, { status: acepta.status });
 
   const quien = s.datos.empresa ? `${s.nombre} (${s.datos.empresa})` : s.nombre;
 
@@ -60,9 +62,7 @@ export async function POST(req: NextRequest) {
         ...s.datos,
         ...(s.telefono ? { telefono: s.telefono } : {}),
         ...(s.tipo.id === "certificado-laboral" ? { verificacion_directorio: "no_verificado" } : {}),
-        autorizacion_datos: politica
-          ? `Autorizó ${politica.codigo} versión ${politica.version} (sha256 ${politica.sha256})`
-          : "Autorizó el tratamiento de datos (versión de la política no disponible al radicar)",
+        autorizacion_datos: resumenConsentimiento(acepta.evidencia),
         formulario_web: "Radicar una solicitud",
       },
       // Idempotencia: el mismo envío (reintento o doble clic) devuelve el mismo radicado.

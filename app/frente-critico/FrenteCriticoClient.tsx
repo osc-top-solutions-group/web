@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Clock, MessageSquare, ShieldCheck, FileText, BarChart3, Send, Check, AlertCircle } from "lucide-react";
 import { COUNTRIES, SECTORES, HORIZONTES, HONEYPOT_FIELD } from "@/lib/forms";
-import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
+import { DeclaracionDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 import styles from "./page.module.css";
 
 /**
@@ -38,7 +38,7 @@ const REGLAS: { campo: Campo; label: string; msg: string }[] = [
   { campo: "sector",    label: "Sector",                  msg: "Seleccione el sector de la operación." },
   { campo: "prioridad", label: "Prioridad más crítica",   msg: "Describa el frente crítico, aunque sea en una línea." },
   { campo: "horizonte", label: "Horizonte de atención",   msg: "Elija el horizonte de atención." },
-  { campo: "consent",   label: "Autorización de contacto", msg: "Necesitamos su autorización para poder contactarle." },
+  { campo: "consent",   label: "Política de tratamiento de datos", msg: "Para enviar debe leer y aceptar la política de tratamiento de datos." },
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -132,6 +132,7 @@ export default function FrenteCriticoClient() {
           horizonte: form.horizonte,
           prioridad: form.prioridad,
           consentimiento: consent,
+          politicaSha256: politica?.sha256,
           [HONEYPOT_FIELD]: honeypot,
           iniciadoEn,
         }),
@@ -404,9 +405,8 @@ export default function FrenteCriticoClient() {
                               if (errores.consent) setErrores((x) => ({ ...x, consent: undefined }));
                             }} />
                           <span>
-                            Autorizo a OSC Top Solutions Group a contactarme para responder a esta consulta.
-                            No compartimos sus datos con terceros ni lo inscribimos en listas de correo.{" "}
-                            <EnlacePoliticaDatos politica={politica} />.
+                            <DeclaracionDatos formulario="frente-critico" politica={politica} />{" "}
+                            No lo inscribimos en listas de correo.
                           </span>
                         </label>
                         <Error_ campo="consent" />

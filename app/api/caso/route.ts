@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateCaso, detectBot } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
 import { esm, MESA_NO_DISPONIBLE } from "@/lib/esm";
+import { evidenciaConsentimiento, resumenConsentimiento } from "@/lib/consentimiento-servidor";
 
 /**
  * POST /api/caso — abre un caso de cliente en la mesa de servicio (OSC One).
@@ -26,6 +27,10 @@ export async function POST(req: NextRequest) {
   if (!valid.ok) return NextResponse.json({ error: valid.error }, { status: 400 });
   const c = valid.value;
 
+  // Aceptación de la política de datos: sin ella no se abre el caso.
+  const acepta = await evidenciaConsentimiento(req, parsed.body, "caso");
+  if (!acepta.ok) return NextResponse.json({ error: acepta.error }, { status: acepta.status });
+
   // Campo a campo: el cuerpo del visitante nunca se propaga por spread hacia la mesa.
   const r = await esm<{ consecutivo: string }>("/solicitudes", {
     method: "POST",
@@ -43,6 +48,7 @@ export async function POST(req: NextRequest) {
         severidad: `${c.severidad.codigo} ${c.severidad.etiqueta}`,
         ...(c.contrato ? { contrato: c.contrato } : {}),
         ...(c.telefono ? { telefono: c.telefono } : {}),
+        autorizacion_datos: resumenConsentimiento(acepta.evidencia),
         formulario_web: "Centro de Servicio al Cliente",
       },
       // Idempotencia: el mismo envío (reintento o doble clic) devuelve el mismo caso.

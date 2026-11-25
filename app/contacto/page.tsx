@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import AnimatedSection from "@/components/ui/AnimatedSection";
 import { Mail, MapPin, Send, CheckCircle2 } from "lucide-react";
 import { COUNTRIES, HONEYPOT_FIELD } from "@/lib/forms";
+import { DeclaracionDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 const offices = [
   { country: "Colombia",   city: "Bogotá",           address: "Cra. 70 D No. 52-81" },
@@ -32,6 +33,9 @@ export default function ContactoPage() {
   // ve, y el instante en que se montó el formulario para medir el tiempo de llenado.
   const [honeypot, setHoneypot] = useState("");
   const [iniciadoEn] = useState(() => Date.now());
+  // Sin aceptar la política de datos vigente (QUALITA) no se envía el mensaje.
+  const [consentimiento, setConsentimiento] = useState(false);
+  const politica = usePoliticaDatos();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -44,7 +48,7 @@ export default function ContactoPage() {
       const res = await fetch("/api/contacto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, [HONEYPOT_FIELD]: honeypot, iniciadoEn }),
+        body: JSON.stringify({ ...form, consentimiento, politicaSha256: politica?.sha256, [HONEYPOT_FIELD]: honeypot, iniciadoEn }),
       });
       if (!res.ok) {
         // El servidor devuelve el detalle en los 400 de validación; en 5xx no hay detalle útil.
@@ -219,6 +223,20 @@ export default function ContactoPage() {
                     />
                   </div>
 
+                  <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-slate-600">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={consentimiento}
+                      onChange={(e) => setConsentimiento(e.target.checked)}
+                      className="mt-1 h-4 w-4 shrink-0 accent-[#FF0057]"
+                    />
+                    <span>
+                      <DeclaracionDatos formulario="contacto" politica={politica} className="font-semibold text-[#000086] underline underline-offset-2 hover:text-[#FF0057]" />{" "}
+                      <span className="text-[#FF0057]">*</span>
+                    </span>
+                  </label>
+
                   <motion.button
                     type="submit"
                     disabled={loading}
@@ -234,7 +252,7 @@ export default function ContactoPage() {
                   </motion.button>
 
                   <p className="text-slate-400 text-xs text-center">
-                    Al enviar acepta nuestra política de privacidad. Sin spam, nunca.
+                    Sin spam, nunca.
                   </p>
                 </form>
               )}

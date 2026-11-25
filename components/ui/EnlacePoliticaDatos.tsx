@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  DECLARACION_INICIO, FINALIDAD_DATOS, RESPONSABLE_DATOS, tituloPolitica,
+  type FormularioConsentimiento,
+} from "@/lib/consentimiento";
 
 export interface PoliticaVigente {
   codigo: string;
@@ -47,5 +51,24 @@ export function EnlacePoliticaDatos({ politica, className }: { politica: Politic
     <a href={politica.pdf} target="_blank" rel="noopener" className={className} title={`${politica.nombre} · ${politica.codigo}`}>
       Política de tratamiento de datos personales (versión {politica.version})
     </a>
+  );
+}
+
+/**
+ * Texto de la casilla de aceptación, con la política enlazada. Es el mismo texto
+ * que el servidor guarda como evidencia (`declaracionDatos` en lib/consentimiento.ts):
+ * si cambia aquí, cambia allá.
+ */
+export function DeclaracionDatos({
+  formulario, politica, className,
+}: { formulario: FormularioConsentimiento; politica: PoliticaVigente | null; className?: string }) {
+  return (
+    <>
+      {DECLARACION_INICIO}
+      <a href={politica ? politica.pdf : "/compliance"} target="_blank" rel="noopener" className={className}>
+        {tituloPolitica(politica)}
+      </a>{" "}
+      de {RESPONSABLE_DATOS}. {FINALIDAD_DATOS[formulario]}
+    </>
   );
 }

@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { envios, MODULOS } from "@/lib/firebase/server";
 import { validateFrenteCritico, detectBot } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
+import { evidenciaConsentimiento } from "@/lib/consentimiento-servidor";
 
 /** POST /api/frente-critico — registra un lead en `formularios/web_frente_critico/envios`. */
 export async function POST(req: NextRequest) {
@@ -20,9 +21,14 @@ export async function POST(req: NextRequest) {
   const valid = validateFrenteCritico(parsed.body);
   if (!valid.ok) return NextResponse.json({ error: valid.error }, { status: 400 });
 
+  // Aceptación de la política de datos: qué versión, qué texto, cuándo y desde dónde.
+  const acepta = await evidenciaConsentimiento(req, parsed.body, "frente-critico");
+  if (!acepta.ok) return NextResponse.json({ error: acepta.error }, { status: acepta.status });
+
   try {
     const ref = await envios(MODULOS.frenteCritico).add({
       ...valid.value,
+      autorizacionDatos: acepta.evidencia,
       estado: "nuevo",
       origen: "landing-frente-critico",
       // `notificado: false` es lo que consulta el barrido `resend-pending-leads`
