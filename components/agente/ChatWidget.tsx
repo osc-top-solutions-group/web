@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AlertCircle, ArrowRight, Loader2, RotateCcw, Send, X } from "lucide-react";
 import { EVENTO_ABRIR_NOVA } from "./AbrirNova";
+import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 /**
  * Widget del asistente virtual OSC (Fase 1), con el diseño de la mascota robot:
@@ -32,8 +33,6 @@ const SESSION_KEY = "agente-session-id";
 const TEASER_KEY = "agente-teaser-visto";
 const SALUDO =
   "¡Hola! Soy NOVA, el asistente virtual de OSC Top Solutions Group. Te acompaño a explorar nuestras soluciones especializadas en conectividad crítica, ciberseguridad y operaciones gestionadas (IT/OT). Cuéntame qué reto de infraestructura tienes, o si prefieres que derivemos tu caso directamente con nuestro equipo especialista. ¿En qué te apoyamos hoy?";
-const AVISO =
-  "Asistente automatizado. Los datos que compartas se tratan según nuestra política de datos personales.";
 
 /* Paleta del diseño: azul profundo → violeta, con acento neón rosa/magenta. */
 const GRADIENTE = "linear-gradient(135deg,#1E1BB8 0%,#5B2BE0 55%,#8A2BFF 100%)";
@@ -71,6 +70,7 @@ function renderTexto(texto: string) {
 
 export default function ChatWidget() {
   const pathname = usePathname();
+  const politica = usePoliticaDatos();
   const [abierto, setAbierto] = useState(false);
   const [teaser, setTeaser] = useState(false);
   // La burbuja también se muestra mientras el puntero (o el foco) está sobre la mascota.
@@ -329,7 +329,8 @@ export default function ChatWidget() {
             </button>
           </form>
           <p className="px-4 pb-2 text-[10px] leading-snug" style={{ color: "#8D8BB5" }}>
-            {AVISO}
+            Asistente automatizado. Los datos que compartas se tratan según nuestra{" "}
+            <EnlacePoliticaDatos politica={politica} className="underline underline-offset-2" />.
           </p>
         </div>
       )}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateSolicitud, detectBot, CAMPOS_SOLICITUD, OPCIONES_SOLICITUD, type CampoSolicitud } from "@/lib/forms";
 import { readJson, clientMeta } from "@/lib/request";
 import { esm, MESA_NO_DISPONIBLE } from "@/lib/esm";
+import { politicaDatos } from "@/lib/qualita";
 
 /**
  * POST /api/solicitud — radica en la mesa de servicio (OSC One) una solicitud que
@@ -40,6 +41,9 @@ export async function POST(req: NextRequest) {
   }
   partes.push('Radicado desde el formulario "Radicar una solicitud" de la web corporativa.');
 
+  // Qué política autorizó: la versión vigente en QUALITA al radicar (código, versión y huella del PDF).
+  const politica = await politicaDatos();
+
   const quien = s.datos.empresa ? `${s.nombre} (${s.datos.empresa})` : s.nombre;
 
   // Campo a campo: el cuerpo del visitante nunca se propaga por spread hacia la mesa.
@@ -56,7 +60,9 @@ export async function POST(req: NextRequest) {
         ...s.datos,
         ...(s.telefono ? { telefono: s.telefono } : {}),
         ...(s.tipo.id === "certificado-laboral" ? { verificacion_directorio: "no_verificado" } : {}),
-        autorizacion_datos: "si",
+        autorizacion_datos: politica
+          ? `Autorizó ${politica.codigo} versión ${politica.version} (sha256 ${politica.sha256})`
+          : "Autorizó el tratamiento de datos (versión de la política no disponible al radicar)",
         formulario_web: "Radicar una solicitud",
       },
       // Idempotencia: el mismo envío (reintento o doble clic) devuelve el mismo radicado.

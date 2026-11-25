@@ -12,6 +12,7 @@ import {
   CASO_DESCRIPCION_MIN,
   type CampoSolicitud,
 } from "@/lib/forms";
+import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 
 /*
  * Formulario general de solicitudes: el visitante elige qué necesita y el
@@ -54,6 +55,9 @@ export function SolicitudForm() {
   // Anti-bots (ver `detectBot` en lib/forms.ts) e identificador del envío: un reintento no radica dos veces.
   const [honeypot, setHoneypot] = useState("");
   const [sesion, setSesion] = useState(() => ({ iniciadoEn: Date.now(), envioId: crypto.randomUUID() }));
+
+  // Política de datos vigente en QUALITA: es la que se enlaza y la que queda registrada en la solicitud.
+  const politica = usePoliticaDatos();
 
   const tipo = SOLICITUDES.find((s) => s.id === tipoId) ?? null;
 
@@ -246,8 +250,8 @@ export function SolicitudForm() {
               className="mt-1 h-4 w-4 shrink-0 accent-[#000086]"
             />
             <span>
-              Autorizo a OSC Top Solutions Group a tratar mis datos personales para atender esta solicitud, según sus{" "}
-              <Link href="/compliance" className="font-semibold text-[#000086] hover:text-[#e6004f]">políticas</Link>. *
+              Autorizo a OSC Top Solutions Group a tratar mis datos personales para atender esta solicitud, según su{" "}
+              <EnlacePoliticaDatos politica={politica} className="font-semibold text-[#000086] underline underline-offset-2 hover:text-[#e6004f]" />. *
             </span>
           </label>
 

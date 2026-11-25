@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Clock, MessageSquare, ShieldCheck, FileText, BarChart3, Send, Check, AlertCircle } from "lucide-react";
 import { COUNTRIES, SECTORES, HORIZONTES, HONEYPOT_FIELD } from "@/lib/forms";
+import { EnlacePoliticaDatos, usePoliticaDatos } from "@/components/ui/EnlacePoliticaDatos";
 import styles from "./page.module.css";
 
 /**
@@ -45,6 +46,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function FrenteCriticoClient() {
   const [form, setForm] = useState(VACIO);
   const [consent, setConsent] = useState(false);
+  const politica = usePoliticaDatos();
   // Anti-bots (ver `detectBot` en lib/forms.ts): honeypot que un humano nunca
   // ve, y el instante en que se montó el formulario para medir el tiempo de llenado.
   const [honeypot, setHoneypot] = useState("");
@@ -404,7 +406,7 @@ export default function FrenteCriticoClient() {
                           <span>
                             Autorizo a OSC Top Solutions Group a contactarme para responder a esta consulta.
                             No compartimos sus datos con terceros ni lo inscribimos en listas de correo.{" "}
-                            <a href="/compliance">Políticas de privacidad</a>.
+                            <EnlacePoliticaDatos politica={politica} />.
                           </span>
                         </label>
                         <Error_ campo="consent" />

@@ -156,6 +156,24 @@ if ($Entorno -ne "prod") {
   }
 }
 
+# Política de tratamiento de datos desde QUALITA (lib/qualita.ts): los formularios y el asistente enlazan la
+# versión VIGENTE aprobada en el SGC, sin copias del PDF en este repo. Igual que el Portal de Proveedores, ambos
+# entornos leen QUALITA de PRODUCCIÓN (la política solo existe allí y es pública). Requiere, una sola vez y con
+# autorización del dueño del SGC, dos permisos para la cuenta de servicio de la web:
+#   gcloud secrets add-iam-policy-binding sgc-publicacion-api-key --project <proyecto> --member serviceAccount:<sa> --role roles/secretmanager.secretAccessor
+#   gcloud run services add-iam-policy-binding sgc-api-backend --region <región> --project <proyecto> --member serviceAccount:<sa> --role roles/run.invoker
+# Mientras no estén, la web se despliega sin la integración y los formularios enlazan a /compliance.
+$qualitaSecreto = "sgc-publicacion-api-key"
+$qualitaUrl = gcloud run services describe sgc-api-backend --region $Region --project $Project --format "value(status.url)" 2>$null
+$qualitaAcceso = gcloud secrets get-iam-policy $qualitaSecreto --project $Project --flatten "bindings[].members" --filter "bindings.role:roles/secretmanager.secretAccessor" --format "value(bindings.members)" 2>$null
+if ($qualitaUrl -and ($qualitaAcceso -contains "serviceAccount:$sa")) {
+  $vars += "QUALITA_API_URL=$qualitaUrl"
+  $secretos += ",QUALITA_API_KEY=${qualitaSecreto}:latest"
+  Write-Host "Política de datos: QUALITA ($qualitaUrl)"
+} else {
+  Write-Warning "La cuenta $sa no tiene acceso a QUALITA ($qualitaSecreto): la política de datos enlazará a /compliance."
+}
+
 # QA: nadie entra sin pasar por el balanceador + IAP (solo el agente de IAP invoca).
 # Prod: público, como hoy (invoker IAM desactivado; la política de la organización
 # no admite allUsers, por eso no se usa --allow-unauthenticated).
