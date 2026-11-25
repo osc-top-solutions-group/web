@@ -21,6 +21,7 @@ const footerLinks = {
     { label: "Beyond Tech",   href: "/beyond-tech" },
     { label: "OSC Connect",   href: "/osc-connect" },
     { label: "Contacto",      href: "/contacto"    },
+    { label: "Radicar una solicitud", href: "/osc-connect/solicitudes" },
     { label: "Políticas OSC", href: "/compliance"  },
   ],
 };

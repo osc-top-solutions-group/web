@@ -178,6 +178,29 @@ export default function OscConnectPage() {
             </article>
           </AnimatedSection>
 
+          {/* Solicitudes de quienes no son clientes: PQRS, certificados, proveedores, comercial… */}
+          <AnimatedSection direction="none">
+            <article
+              id="solicitudes"
+              className="scroll-mt-28 flex flex-wrap items-center justify-between gap-6 rounded-[20px] border border-slate-200 bg-white p-8"
+            >
+              <div className="max-w-[720px]">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">Solicitudes en línea</span>
+                <h2 className="m-0 mt-2 text-2xl font-bold text-[#0f172a]">Radicar una solicitud</h2>
+                <p className="m-0 mt-2 text-[15px] leading-[1.6] text-slate-600">
+                  PQRS, certificados laborales, proveedores, información comercial, cotizaciones y otros
+                  requerimientos. Reciba su número de radicado y consulte el estado cuando quiera.
+                </p>
+              </div>
+              <Link
+                href="/osc-connect/solicitudes"
+                className="inline-flex items-center gap-2 rounded-full bg-[#000086] px-7 py-3.5 text-[15px] font-semibold text-white no-underline transition-colors hover:bg-[#00005e]"
+              >
+                Radicar una solicitud <ArrowRight size={16} />
+              </Link>
+            </article>
+          </AnimatedSection>
+
           {/* Colaboradores · Proveedores · Talento */}
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-6">
             {portals.map((p, i) => (

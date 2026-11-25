@@ -373,6 +373,179 @@ export function validateCodigoConsulta(raw: unknown): Validated<string> {
   return { ok: true, value: v };
 }
 
+/* ── Radicar una solicitud (todo lo que no es un caso de cliente) ───────── */
+
+/** Clases de PQRS. Fuente de verdad del <select> y del servidor. */
+export const TIPOS_PQRS = [
+  { id: "peticion", etiqueta: "Petición" },
+  { id: "queja", etiqueta: "Queja" },
+  { id: "reclamo", etiqueta: "Reclamo" },
+  { id: "sugerencia", etiqueta: "Sugerencia" },
+  { id: "felicitacion", etiqueta: "Felicitación" },
+] as const;
+
+/** Certificados que se piden por este canal: solo para personas sin vínculo vigente con OSC. */
+export const TIPOS_CERTIFICADO = [
+  { id: "retirado_con_contratos_anteriores", etiqueta: "Trabajé en OSC (ya no tengo contrato vigente)" },
+  { id: "prestador_de_servicios", etiqueta: "Fui prestador de servicios" },
+  { id: "aprendiz", etiqueta: "Fui aprendiz o practicante" },
+] as const;
+
+export const TIPOS_DOCUMENTO = ["CC", "CE", "PAS", "DNI", "RUT", "CURP", "Otro"] as const;
+
+export type CampoSolicitud =
+  | "empresa" | "cargo" | "servicio_interes" | "tipo_pqrs" | "tipo_documento"
+  | "numero_documento" | "tipo_certificado" | "dirigido_a" | "nit" | "referencia";
+
+export interface SolicitudTipo {
+  /** Id del servicio en el catálogo de la mesa: ella resuelve el área y el prefijo del radicado. */
+  id: string;
+  etiqueta: string;
+  ayuda: string;
+  solicitante: "exempleado" | "prospecto" | "otro";
+  requeridos: readonly CampoSolicitud[];
+  opcionales: readonly CampoSolicitud[];
+  descripcionObligatoria: boolean;
+}
+
+/**
+ * Solicitudes que se radican en la mesa de servicio desde "Radicar una solicitud".
+ * Son los mismos servicios y los mismos datos que reúne el asistente NOVA.
+ * El caso de cliente no está aquí: tiene su propio formulario en el Centro de Servicio.
+ */
+export const SOLICITUDES: readonly SolicitudTipo[] = [
+  {
+    id: "pqrs", etiqueta: "PQRS", ayuda: "Petición, queja, reclamo, sugerencia o felicitación.",
+    solicitante: "otro", requeridos: ["tipo_pqrs"], opcionales: ["empresa"], descripcionObligatoria: true,
+  },
+  {
+    id: "certificado-laboral", etiqueta: "Certificado laboral", ayuda: "Para quienes ya no tienen vínculo vigente con OSC.",
+    solicitante: "exempleado", requeridos: ["tipo_certificado", "tipo_documento", "numero_documento", "dirigido_a"], opcionales: [], descripcionObligatoria: false,
+  },
+  {
+    id: "solicitud-proveedor", etiqueta: "Proveedores", ayuda: "Ser proveedor, acceso al portal o estado de una factura o pago.",
+    solicitante: "otro", requeridos: ["empresa"], opcionales: ["nit", "referencia"], descripcionObligatoria: true,
+  },
+  {
+    id: "prospecto", etiqueta: "Información comercial", ayuda: "Conocer nuestras soluciones o recibir una propuesta.",
+    solicitante: "prospecto", requeridos: ["empresa", "servicio_interes"], opcionales: ["cargo"], descripcionObligatoria: true,
+  },
+  {
+    id: "cotizacion", etiqueta: "Cotización", ayuda: "Cotización formal de un servicio o proyecto concreto.",
+    solicitante: "prospecto", requeridos: ["empresa", "servicio_interes"], opcionales: ["cargo"], descripcionObligatoria: true,
+  },
+  {
+    id: "otra-solicitud", etiqueta: "Otra solicitud", ayuda: "Prensa, alianzas, inversionistas o cualquier otro tema.",
+    solicitante: "otro", requeridos: [], opcionales: ["empresa"], descripcionObligatoria: true,
+  },
+];
+
+/** Etiqueta y tope de cada dato propio de un tipo de solicitud. */
+export const CAMPOS_SOLICITUD: Record<CampoSolicitud, { etiqueta: string; max: number }> = {
+  empresa: { etiqueta: "Empresa u organización", max: MAX.empresa },
+  cargo: { etiqueta: "Cargo", max: MAX.rol },
+  servicio_interes: { etiqueta: "Servicio o solución de interés", max: 160 },
+  tipo_pqrs: { etiqueta: "Tipo de PQRS", max: 20 },
+  tipo_documento: { etiqueta: "Tipo de documento", max: 10 },
+  numero_documento: { etiqueta: "Número de documento", max: 30 },
+  tipo_certificado: { etiqueta: "Su vínculo con OSC", max: 60 },
+  dirigido_a: { etiqueta: "¿A quién va dirigido el certificado?", max: 160 },
+  nit: { etiqueta: "NIT o identificación tributaria", max: 30 },
+  referencia: { etiqueta: "N.º de factura, orden u otra referencia", max: 80 },
+};
+
+/** Opciones de los datos que se eligen de una lista (valor que viaja → texto que se muestra). */
+export const OPCIONES_SOLICITUD: Partial<Record<CampoSolicitud, readonly { id: string; etiqueta: string }[]>> = {
+  tipo_pqrs: TIPOS_PQRS,
+  tipo_certificado: TIPOS_CERTIFICADO,
+  tipo_documento: TIPOS_DOCUMENTO.map((d) => ({ id: d, etiqueta: d })),
+};
+
+export interface SolicitudInput {
+  tipo: SolicitudTipo;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  pais: string;
+  paisIso: string;
+  descripcion: string | null;
+  /** Solo los datos propios del tipo elegido (los de otros tipos se descartan). */
+  datos: Partial<Record<CampoSolicitud, string>>;
+  envioId: string;
+}
+
+/** Valida el cuerpo de `POST /api/solicitud`. */
+export function validateSolicitud(body: unknown): Validated<SolicitudInput> {
+  if (!body || typeof body !== "object") return { ok: false, error: "Cuerpo de la petición inválido" };
+  const b = body as Record<string, unknown>;
+
+  const idTipo = text(b.tipo);
+  const tipo = SOLICITUDES.find((s) => s.id === idTipo);
+  if (!tipo) return { ok: false, error: "Seleccione el tipo de solicitud" };
+
+  const nombre = required(b.nombre, "nombre", MAX.nombre);
+  if (!nombre.ok) return nombre;
+  if (nombre.value.length < 2) return { ok: false, error: 'El campo "nombre" es demasiado corto' };
+
+  const mail = email(b.email);
+  if (!mail.ok) return mail;
+  // La mesa admite hasta 120 caracteres de correo.
+  if (mail.value.length > 120) return { ok: false, error: "El correo excede la longitud permitida" };
+
+  const telefono = optional(b.telefono, "teléfono", MAX.telefono);
+  if (!telefono.ok) return telefono;
+
+  const pais = text(b.pais);
+  if (!pais) return { ok: false, error: 'El campo "país" es obligatorio' };
+  if (!(COUNTRIES as readonly string[]).includes(pais)) return { ok: false, error: "El país seleccionado no es válido" };
+
+  const datos: Partial<Record<CampoSolicitud, string>> = {};
+  const campos = [
+    ...tipo.requeridos.map((campo) => ({ campo, obligatorio: true })),
+    ...tipo.opcionales.map((campo) => ({ campo, obligatorio: false })),
+  ];
+  for (const { campo, obligatorio } of campos) {
+    const def = CAMPOS_SOLICITUD[campo];
+    const v = obligatorio ? required(b[campo], def.etiqueta, def.max) : optional(b[campo], def.etiqueta, def.max);
+    if (!v.ok) return v;
+    if (!v.value) continue;
+    const lista = OPCIONES_SOLICITUD[campo];
+    if (lista && !lista.some((o) => o.id === v.value)) return { ok: false, error: `El valor de "${def.etiqueta}" no es válido` };
+    datos[campo] = v.value;
+  }
+
+  const descripcion = tipo.descripcionObligatoria
+    ? required(b.descripcion, "descripción", MAX.mensaje, true)
+    : optional(b.descripcion, "descripción", MAX.mensaje, true);
+  if (!descripcion.ok) return descripcion;
+  if (tipo.descripcionObligatoria && (descripcion.value ?? "").length < CASO_DESCRIPCION_MIN) {
+    return { ok: false, error: `Describa su solicitud con al menos ${CASO_DESCRIPCION_MIN} caracteres` };
+  }
+
+  // La autorización de tratamiento de datos se valida en el servidor: solo vale el booleano `true`.
+  if (b.consentimiento !== true) {
+    return { ok: false, error: "Necesitamos su autorización de tratamiento de datos para radicar la solicitud" };
+  }
+
+  const envioId = text(b.envioId);
+  if (!envioId || !UUID_RE.test(envioId)) return { ok: false, error: "Recargue la página e intente de nuevo" };
+
+  return {
+    ok: true,
+    value: {
+      tipo,
+      nombre: nombre.value,
+      email: mail.value,
+      telefono: telefono.value,
+      pais,
+      paisIso: COUNTRY_ISO[pais as (typeof COUNTRIES)[number]],
+      descripcion: descripcion.value,
+      datos,
+      envioId: envioId.toLowerCase(),
+    },
+  };
+}
+
 /* ── Anti-bots ─────────────────────────────────────────────────────────── */
 
 /**

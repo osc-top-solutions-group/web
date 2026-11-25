@@ -44,6 +44,7 @@ Deny-all no limita a esta aplicación: el Admin SDK omite las reglas por diseño
 | `GET /api/subscribe` | `Authorization: Bearer $ADMIN_SECRET` |
 | `GET /api/vcard/mauricio-rubio` | Pública, contenido estático |
 | `POST /api/caso` | Pública. Abre un caso de cliente en la mesa de servicio (OSC One) y devuelve su número. Validación en `lib/forms.ts` |
+| `POST /api/solicitud` | Pública. Radica en la mesa una solicitud que no es un caso de cliente (PQRS, certificado laboral, proveedores, información comercial, cotización, otra) desde `/osc-connect/solicitudes`. Tipos y datos en `SOLICITUDES` de `lib/forms.ts` (los mismos del asistente NOVA) |
 | `POST /api/caso/consulta/codigo` | Pública. Pide a la mesa el código de verificación; responde igual exista o no el caso |
 | `POST /api/caso/consulta/verificar` | Pública. Valida el código y deja la sesión de consulta en una cookie httpOnly (30 min) |
 | `GET` / `DELETE /api/caso/consulta` | Sesión de consulta. Casos del correo verificado (`?caso=` para uno) / cerrar la sesión |

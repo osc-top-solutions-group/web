@@ -104,7 +104,12 @@ export default function ContactoPage() {
                     Hablemos de su proyecto
                   </h2>
                   <p className="text-slate-400 text-sm mb-6">
-                    Complete el formulario y un experto OSC lo contactará en menos de 24 h.
+                    Complete el formulario y un experto OSC lo contactará en menos de 24 h. ¿PQRS, certificados,
+                    proveedores u otro trámite?{" "}
+                    <a href="/osc-connect/solicitudes" className="font-semibold text-[#000086] hover:text-[#FF0057]">
+                      Radique una solicitud
+                    </a>
+                    .
                   </p>
 
                   {/* Row 1 — Nombre + Empresa */}

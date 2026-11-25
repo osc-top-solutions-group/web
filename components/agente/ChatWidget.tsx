@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AlertCircle, ArrowRight, Loader2, RotateCcw, Send, X } from "lucide-react";
+import { EVENTO_ABRIR_NOVA } from "./AbrirNova";
 
 /**
  * Widget del asistente virtual OSC (Fase 1), con el diseño de la mascota robot:
@@ -119,6 +120,16 @@ export default function ChatWidget() {
   useEffect(() => {
     if (abierto) inputRef.current?.focus();
   }, [abierto]);
+
+  // Los botones "Conversar con NOVA" de las páginas abren este mismo chat (ver AbrirNova).
+  useEffect(() => {
+    const alPedirlo = () => {
+      setTeaser(false);
+      setAbierto(true);
+    };
+    window.addEventListener(EVENTO_ABRIR_NOVA, alPedirlo);
+    return () => window.removeEventListener(EVENTO_ABRIR_NOVA, alPedirlo);
+  }, []);
 
   const abrir = () => {
     ocultarTeaser();

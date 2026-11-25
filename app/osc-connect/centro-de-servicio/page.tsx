@@ -14,6 +14,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { CaseForm, CaseLookup } from "./CaseForms";
+import { AbrirNova } from "@/components/agente/AbrirNova";
 
 export const metadata: Metadata = {
   title: "Centro de Servicio al Cliente – OSC Connect",
@@ -21,11 +22,7 @@ export const metadata: Metadata = {
     "Un caso. Cualquier canal. Una sola respuesta. Reporte, solicite y haga seguimiento a sus casos con OSC desde el canal que prefiera.",
 };
 
-/*
- * TODO (pendientes de OSC antes de producción). Mientras estén vacíos, los
- * botones correspondientes se muestran como "Próximamente" y no enlazan.
- */
-const OSCAR_URL = ""; // URL o acción que abre el agente OSCAR
+/* El asistente NOVA se abre con <AbrirNova> (el mismo chat flotante del sitio). */
 const SUPPORT_EMAIL = "soporte@osctopsolutionsgroup.com"; // por confirmar
 
 function ActionLink({
@@ -64,17 +61,18 @@ const intents = [
   { icon: ShieldAlert, title: "Reportar una falla crítica", sub: "Servicio caído o en riesgo", href: "#formulario", alert: true },
   { icon: Wrench, title: "Hacer una solicitud", sub: "Cambio, ajuste o nuevo requerimiento", href: "#formulario" },
   { icon: Search, title: "Consultar un caso", sub: "Ver estado o agregar información", href: "#consultar" },
-  { icon: LifeBuoy, title: "Resolver una duda", sub: "Uso, configuración o facturación", href: "#oscar" },
+  { icon: LifeBuoy, title: "Resolver una duda", sub: "Uso, configuración o facturación", href: "#nova" },
 ];
 
 const channels = [
   {
     icon: Bot,
-    title: "OSCAR · Agente IA",
+    title: "NOVA · Agente IA",
     tag: "24/7",
     text: "Abre casos, consulta su estado y resuelve dudas frecuentes. Si hace falta, lo pasa a una persona con todo el contexto.",
-    cta: "Conversar con OSCAR",
-    href: OSCAR_URL,
+    cta: "Conversar con NOVA",
+    href: "",
+    nova: true,
   },
   {
     icon: FileText,
@@ -95,7 +93,7 @@ const channels = [
 ];
 
 const steps = [
-  { title: "Usted elige el canal", text: "OSCAR, formulario, correo, NOC o portal." },
+  { title: "Usted elige el canal", text: "NOVA, formulario, correo, NOC o portal." },
   { title: "Se crea un caso único", text: "Recibe su número de caso por correo." },
   { title: "Se clasifica por severidad", text: "P1 a P4 define el tiempo de respuesta." },
   { title: "Lo atiende un especialista", text: "Del equipo de la solución contratada." },
@@ -110,13 +108,13 @@ const levels = [
 
 const faqs = [
   { q: "¿En qué se diferencia de Contacto?", a: "El Centro de Servicio es para clientes con servicios activos. Contacto es para conversar sobre proyectos nuevos con un experto comercial." },
-  { q: "¿Necesito mi número de contrato?", a: "Ayuda a ubicar su servicio más rápido. Si no lo tiene a mano, OSCAR o la mesa lo identifican con su correo corporativo." },
+  { q: "¿Necesito mi número de contrato?", a: "Ayuda a ubicar su servicio más rápido. Si no lo tiene a mano, NOVA o la mesa lo identifican con su correo corporativo." },
   { q: "¿Puedo cambiar de canal a mitad de un caso?", a: "Sí. Indique su número de caso en cualquier canal y verá el mismo historial." },
   { q: "¿Cómo califico la atención?", a: "Al cerrar el caso recibe una encuesta corta por correo." },
 ];
 
 const chat = [
-  { me: false, t: "Hola, soy OSCAR. ¿Es cliente de OSC o busca una nueva solución?" },
+  { me: false, t: "Hola, soy NOVA. ¿Es cliente de OSC o busca una nueva solución?" },
   { me: true, t: "Soy cliente. Una cámara del perímetro no transmite desde esta mañana." },
   { me: false, t: "Entendido. ¿En qué sitio está y está afectando la operación?" },
   { me: true, t: "Subestación Norte. Otras cámaras cubren la zona." },
@@ -229,7 +227,7 @@ export default function CentroDeServicioPage() {
           <SectionHeader
             eyebrow="Canales de servicio"
             title="Elija el canal. El caso es el mismo."
-            text="Todos los canales están conectados a la misma mesa de servicio. Puede empezar con OSCAR y terminar por correo sin perder el historial."
+            text="Todos los canales están conectados a la misma mesa de servicio. Puede empezar con NOVA y terminar por correo sin perder el historial."
           />
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] gap-6">
             {channels.map((c, i) => (
@@ -249,12 +247,18 @@ export default function CentroDeServicioPage() {
                 <h3 className="relative m-0 text-xl font-bold text-[#0f172a]">{c.title}</h3>
                 <p className="relative m-0 mt-1.5 text-[13px] font-semibold text-[#000086]">{c.tag}</p>
                 <p className="relative m-0 mt-4 flex-1 text-[15px] leading-[1.7] text-slate-600">{c.text}</p>
-                <ActionLink
-                  href={c.href}
-                  className={`${btn} relative mt-6 self-start text-[#000086] hover:text-[#e6004f]`}
-                >
-                  {c.cta} <ArrowRight size={15} />
-                </ActionLink>
+                {"nova" in c ? (
+                  <AbrirNova className={`${btn} relative mt-6 self-start bg-transparent p-0 text-[#000086] hover:text-[#e6004f]`}>
+                    {c.cta} <ArrowRight size={15} />
+                  </AbrirNova>
+                ) : (
+                  <ActionLink
+                    href={c.href}
+                    className={`${btn} relative mt-6 self-start text-[#000086] hover:text-[#e6004f]`}
+                  >
+                    {c.cta} <ArrowRight size={15} />
+                  </ActionLink>
+                )}
                 <span
                   className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 bg-[#e6004f] transition-transform duration-300 group-hover:scale-x-100"
                   aria-hidden="true"
@@ -289,12 +293,12 @@ export default function CentroDeServicioPage() {
             </ol>
           </div>
           <p className="m-0 mt-12 rounded-2xl bg-[#f5f6fb] px-6 py-5 text-center text-[15px] text-slate-700">
-            Si cambia de canal, el caso lo sigue: OSCAR, el correo, el portal y el NOC ven el mismo historial.
+            Si cambia de canal, el caso lo sigue: NOVA, el correo, el portal y el NOC ven el mismo historial.
           </p>
         </div>
       </section>
 
-      {/* Formulario + OSCAR */}
+      {/* Formulario + NOVA */}
       <section className="border-y border-slate-200 bg-[#f5f6fb] py-24">
         <div className={`${container} grid items-start gap-8 lg:grid-cols-2`}>
           <div
@@ -306,7 +310,11 @@ export default function CentroDeServicioPage() {
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Formulario de caso</span>
               <h2 className="m-0 mt-2 text-2xl font-bold text-[#0f172a]">Abrir un caso</h2>
               <p className="m-0 mb-7 mt-2 text-sm leading-relaxed text-slate-600">
-                Exclusivo para clientes. ¿Busca un proyecto nuevo?{" "}
+                Exclusivo para clientes. ¿PQRS, certificados, proveedores u otro trámite?{" "}
+                <Link href="/osc-connect/solicitudes" className="font-semibold text-[#000086] hover:text-[#e6004f]">
+                  Radique una solicitud
+                </Link>
+                . ¿Busca un proyecto nuevo?{" "}
                 <Link href="/contacto" className="font-semibold text-[#000086] hover:text-[#e6004f]">
                   Use Contacto
                 </Link>
@@ -317,7 +325,7 @@ export default function CentroDeServicioPage() {
           </div>
 
           <div
-            id="oscar"
+            id="nova"
             className="scroll-mt-28 overflow-hidden rounded-3xl text-white shadow-[0_30px_60px_rgba(0,0,60,0.25)]"
             style={{ background: "linear-gradient(135deg, #000086 0%, #00005e 100%)" }}
           >
@@ -327,7 +335,7 @@ export default function CentroDeServicioPage() {
                   <Bot size={22} strokeWidth={1.75} />
                 </span>
                 <div>
-                  <p className="m-0 text-base font-bold">OSCAR · Asistente de servicio</p>
+                  <p className="m-0 text-base font-bold">NOVA · Asistente de servicio</p>
                   <p className="m-0 flex items-center gap-2 text-[13px] text-white/70">
                     <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" /> En línea · 24/7
                   </p>
@@ -358,14 +366,11 @@ export default function CentroDeServicioPage() {
                 ))}
               </div>
               <div className="mt-5 flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-5 py-3 text-sm text-white/50">
-                <MessageSquareText size={16} aria-hidden="true" /> Mensaje para OSCAR
+                <MessageSquareText size={16} aria-hidden="true" /> Mensaje para NOVA
               </div>
-              <ActionLink
-                href={OSCAR_URL}
-                className={`${btn} mt-6 bg-white px-6 py-3 text-[#000086] hover:bg-white/90`}
-              >
-                Conversar con OSCAR <ArrowRight size={15} />
-              </ActionLink>
+              <AbrirNova className={`${btn} mt-6 bg-white px-6 py-3 text-[#000086] hover:bg-white/90`}>
+                Conversar con NOVA <ArrowRight size={15} />
+              </AbrirNova>
             </div>
           </div>
         </div>
